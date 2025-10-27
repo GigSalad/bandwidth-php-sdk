@@ -612,4 +612,9 @@ class APIController extends BaseController
         $deserializedResponse = $mapper->mapClass($response->body, 'BandwidthLib\\Messaging\\Models\\BandwidthMessage');
         return new ApiResponse($response->code, $response->headers, $deserializedResponse);
     }
+
+    public function createMultiChannelMessage(string $accountId, Models\MultiChannelMessageRequest $body): void
+    {
+        // TODO
+    }
 }
