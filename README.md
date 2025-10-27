@@ -1,5 +1,15 @@
 # Bandwidth PHP SDK
 
+---
+
+## GigSalad fork
+
+Support added for sending [RBM/RCS messages via Multi-Channel API](https://dev.bandwidth.com/apis/messaging-apis/messaging/#tag/Multi-Channel/operation/createMultiChannelMessage).
+
+See [example](#send-a-rbmrcs-message) below.
+
+---
+
 [![Test](https://github.com/Bandwidth/php-sdk/actions/workflows/test.yml/badge.svg)](https://github.com/Bandwidth/php-sdk/actions/workflows/test.yml)
 
 |    **OS**    |      **PHP**       |
@@ -77,6 +87,12 @@ try {
 } catch (Exception $e) {
     print_r($e);
 }
+```
+
+### Send a RBM/RCS message
+
+```php
+TODO...
 ```
 
 ### Create BXML
