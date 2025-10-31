@@ -2,6 +2,7 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use BandwidthLib\Messaging\Models\Enums\MessageChannel;
 use BandwidthLib\Messaging\Models\Traits\Builder;
 use BandwidthLib\Messaging\Models\Traits\MissingProperties;
 use BandwidthLib\Messaging\Models\Traits\ToArray;
@@ -13,7 +14,7 @@ class MultiChannelListItem implements \JsonSerializable
     private function __construct(
         protected string $from = "",
         protected string $applicationId = "",
-        protected string $channel = "RBM",
+        protected MessageChannel $channel = MessageChannel::RBM,
         protected \JsonSerializable|null $content = null,
     ) {}
 
@@ -35,7 +36,7 @@ class MultiChannelListItem implements \JsonSerializable
         return $this;
     }
 
-    public function channel(string $channel): static
+    public function channel(MessageChannel $channel): static
     {
         $this->channel = $channel;
         return $this;

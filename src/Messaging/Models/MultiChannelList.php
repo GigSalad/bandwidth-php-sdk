@@ -18,9 +18,7 @@ class MultiChannelList implements \JsonSerializable
 
     private function throwTooManyItemsException(): void
     {
-        throw new \Exception(
-            "Cannot add more than 4 items to a multi-channel list",
-        );
+        throw new \Exception("Multi-channel list cannot have over 4 items");
     }
 
     /**
@@ -42,7 +40,7 @@ class MultiChannelList implements \JsonSerializable
 
     public function isEmpty(): bool
     {
-        return $this->count() === 0;
+        return empty($this->items);
     }
 
     public function isFull(): bool
@@ -52,6 +50,10 @@ class MultiChannelList implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
+        if ($this->isEmpty()) {
+            throw new \Exception("Multi-channel list cannot be empty");
+        }
+
         return $this->items;
     }
 }
