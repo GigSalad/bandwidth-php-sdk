@@ -5,7 +5,7 @@ namespace BandwidthLib\Messaging\Models\Traits;
 trait ToArray
 {
     /**
-     * @return array<string, mixed>
+     * @return mixed[]
      */
     public function toArray(): array
     {

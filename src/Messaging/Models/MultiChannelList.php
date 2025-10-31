@@ -2,31 +2,38 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use BandwidthLib\Messaging\Models\Traits\Builder;
+
 class MultiChannelList implements \JsonSerializable
 {
+    use Builder;
+
+    public const int LIMIT = 4;
+
     /**
-     * @throws \Exception when more than 4 items are added
+     * @param \JsonSerializable[] $items
+     * @throws \Exception when more than the limit of items are added
      */
-    public function __construct(
-        /** @var array<\JsonSerializable> $items */
-        protected array $items = [],
-    ) {
-        if ($this->count() > 4) {
+    public function __construct(protected array $items = [])
+    {
+        if ($this->count() > static::LIMIT) {
             $this->throwTooManyItemsException();
         }
     }
 
     private function throwTooManyItemsException(): void
     {
+        $limit = static::LIMIT;
+
         throw new \Exception(
-            "Cannot add more than 4 items to a multi-channel list",
+            "Multi-channel list cannot have over {$limit} items",
         );
     }
 
     /**
-     * @throws \Exception when attempting to add a 5th item
+     * @throws \Exception when attempting to add another item when at the limit
      */
-    public function addItem(\JsonSerializable $item): void
+    public function push(\JsonSerializable $item): void
     {
         if ($this->isFull()) {
             $this->throwTooManyItemsException();
@@ -42,16 +49,25 @@ class MultiChannelList implements \JsonSerializable
 
     public function isEmpty(): bool
     {
-        return $this->count() === 0;
+        return empty($this->items);
     }
 
     public function isFull(): bool
     {
-        return $this->count() >= 4;
+        return $this->count() >= static::LIMIT;
+    }
+
+    public function validate(): void
+    {
+        if ($this->isEmpty()) {
+            throw new \Exception("Multi-channel list cannot be empty");
+        }
     }
 
     public function jsonSerialize(): array
     {
+        $this->validate();
+
         return $this->items;
     }
 }

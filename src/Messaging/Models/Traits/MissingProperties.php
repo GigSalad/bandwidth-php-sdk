@@ -28,7 +28,7 @@ trait MissingProperties
 
             throw new \Exception(
                 "Missing value(s) from class '{$className}': " .
-                    implode($this->missingProperties(), ", "),
+                    implode(", ", $this->missingProperties()),
             );
         }
     }
