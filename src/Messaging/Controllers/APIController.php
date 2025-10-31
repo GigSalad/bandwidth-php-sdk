@@ -4,16 +4,22 @@ namespace BandwidthLib\Messaging\Controllers;
 use BandwidthLib\APIException;
 use BandwidthLib\APIHelper;
 use BandwidthLib\Messaging\Exceptions\MessagingException;
+use BandwidthLib\Messaging\Models\BandwidthMessage;
+use BandwidthLib\Messaging\Models\BandwidthMessagesList;
+use BandwidthLib\Messaging\Models\BandwidthMultiChannelMessage;
+use BandwidthLib\Messaging\Models\Media;
 use BandwidthLib\Messaging\Models\MessageRequest;
 use BandwidthLib\Messaging\Models\MultiChannelMessageRequest;
 use BandwidthLib\Controllers\BaseController;
 use BandwidthLib\Http\ApiResponse;
 use BandwidthLib\Http\HttpRequest;
 use BandwidthLib\Http\HttpResponse;
-use BandwidthLib\Http\HttpMethod;
 use BandwidthLib\Http\HttpContext;
 use BandwidthLib\Servers;
 use Unirest\Request;
+use Unirest\Request\Body;
+use Unirest\Response;
+use Unirest\Method;
 
 class APIController extends BaseController
 {
@@ -26,17 +32,17 @@ class APIController extends BaseController
         HttpResponse $response,
         HttpContext $context,
     ): void {
-        $this->throwSpecificResponses($response->getStatusCode(), $context);
+        $this->throwWhenSpecificResponses($response->getStatusCode(), $context);
 
         parent::validateResponse($response, $context);
     }
 
     /**
-     * Error handling for some specific HTTP response codes.
+     * Throw specific exceptions for certain HTTP response codes.
      *
-     * @throws \Exception when response code is certain non-200 values
+     * @throws MessagingException when response code is a certain value
      */
-    protected function throwSpecificResponses(
+    protected function throwWhenSpecificResponses(
         int $code,
         HttpContext $context,
     ): void {
@@ -56,13 +62,19 @@ class APIController extends BaseController
     }
 
     /**
-     * @param array<string, string> $headers
+     * Creates custom request object, performs actual request via
+     * Unirest\Request, then creates custom response object. The custom
+     * objects combine into a custom context object, which is used for
+     * callback and validation. Lastly, Unirest\Response is returned.
+     *
+     * @param mixed[] $headers
      */
     protected function makeRequest(
         string $method,
-        array $headers,
         string $url,
-    ): HttpRequest {
+        array $headers = [],
+        ?string $body = null,
+    ): Response {
         Request::auth(
             $this->config->getMessagingBasicAuthUserName(),
             $this->config->getMessagingBasicAuthPassword(),
@@ -70,7 +82,54 @@ class APIController extends BaseController
 
         Request::timeout($this->config->getTimeout());
 
-        return new HttpRequest($method, $headers, $url);
+        $url = APIHelper::cleanUrl(
+            $this->config->getBaseUri(Servers::MESSAGINGDEFAULT) . $url,
+        );
+
+        $headers = [...$headers, "user-agent" => BaseController::USER_AGENT];
+
+        $httpRequest = new HttpRequest($method, $headers, $url);
+
+        $this->getHttpCallBack()?->callOnBeforeRequest($httpRequest);
+
+        $response = Request::send($method, $url, $body, $headers);
+
+        $httpResponse = new HttpResponse(
+            $response->code,
+            $response->headers,
+            $response->raw_body,
+        );
+
+        $httpContext = new HttpContext($httpRequest, $httpResponse);
+
+        $this->getHttpCallBack()?->callOnAfterRequest($httpContext);
+
+        $this->validateResponse($httpResponse, $httpContext);
+
+        return $response;
+    }
+
+    protected function buildApiResponse(
+        Response $response,
+        ?string $mapToClass = null,
+        bool $nullResponseBody = false,
+    ): ApiResponse {
+        $responseBody = $response->body;
+
+        if ($mapToClass) {
+            $responseBody = \is_array($responseBody)
+                ? $this->getJsonMapper()->mapClassArray(
+                    $responseBody,
+                    $mapToClass,
+                )
+                : $this->getJsonMapper()->mapClass($responseBody, $mapToClass);
+        }
+
+        return new ApiResponse(
+            $response->code,
+            $response->headers,
+            $nullResponseBody ? null : $responseBody,
+        );
     }
 
     /**
@@ -84,47 +143,17 @@ class APIController extends BaseController
     public function listMedia(
         string $accountId,
         ?string $continuationToken = null,
-    ) {
+    ): ApiResponse {
         $url = "/users/{$accountId}/media";
 
-        $url = APIHelper::cleanUrl(
-            $this->config->getBaseUri(Servers::MESSAGINGDEFAULT) . $url,
-        );
-
-        $_headers = [
-            "user-agent" => BaseController::USER_AGENT,
+        $headers = [
             "Accept" => "application/json",
             "Continuation-Token" => $continuationToken,
         ];
 
-        $_httpRequest = $this->makeRequest(HttpMethod::GET, $_headers, $url);
+        $response = $this->makeRequest(Method::GET, $url, $headers);
 
-        $this->getHttpCallBack()?->callOnBeforeRequest($_httpRequest);
-
-        // and invoke the API call request to fetch the response
-        $response = Request::get($url, $_headers);
-
-        $_httpResponse = new HttpResponse(
-            $response->code,
-            $response->headers,
-            $response->raw_body,
-        );
-        $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
-
-        $this->getHttpCallBack()?->callOnAfterRequest($_httpContext);
-
-        $this->validateResponse($_httpResponse, $_httpContext);
-
-        $mapper = $this->getJsonMapper();
-        $deserializedResponse = $mapper->mapClassArray(
-            $response->body,
-            "BandwidthLib\\Messaging\\Models\\Media",
-        );
-        return new ApiResponse(
-            $response->code,
-            $response->headers,
-            $deserializedResponse,
-        );
+        return $this->buildApiResponse($response, Media::class);
     }
 
     /**
@@ -135,42 +164,13 @@ class APIController extends BaseController
      * @return ApiResponse response from the API call
      * @throws APIException Thrown if API call fails
      */
-    public function getMedia(string $accountId, string $mediaId)
+    public function getMedia(string $accountId, string $mediaId): ApiResponse
     {
         $url = "/users/{$accountId}/media/{$mediaId}";
 
-        $url = APIHelper::cleanUrl(
-            $this->config->getBaseUri(Servers::MESSAGINGDEFAULT) . $url,
-        );
+        $response = $this->makeRequest(Method::GET, $url);
 
-        $_headers = [
-            "user-agent" => BaseController::USER_AGENT,
-        ];
-
-        $_httpRequest = $this->makeRequest(HttpMethod::GET, $_headers, $url);
-
-        $this->getHttpCallBack()?->callOnBeforeRequest($_httpRequest);
-
-        // and invoke the API call request to fetch the response
-        $response = Request::get($url, $_headers);
-
-        $_httpResponse = new HttpResponse(
-            $response->code,
-            $response->headers,
-            $response->raw_body,
-        );
-        $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
-
-        $this->getHttpCallBack()?->callOnAfterRequest($_httpContext);
-
-        $this->validateResponse($_httpResponse, $_httpContext);
-
-        $deserializedResponse = $response->body;
-        return new ApiResponse(
-            $response->code,
-            $response->headers,
-            $deserializedResponse,
-        );
+        return $this->buildApiResponse($response);
     }
 
     /**
@@ -190,45 +190,19 @@ class APIController extends BaseController
         string $accountId,
         string $mediaId,
         string $body,
-        string $contentType = "application/octet-stream",
+        ?string $contentType = "application/octet-stream",
         ?string $cacheControl = null,
-    ) {
+    ): ApiResponse {
         $url = "/users/{$accountId}/media/{$mediaId}";
 
-        $url = APIHelper::cleanUrl(
-            $this->config->getBaseUri(Servers::MESSAGINGDEFAULT) . $url,
-        );
-
-        $_headers = [
-            "user-agent" => BaseController::USER_AGENT,
-            "Content-Type" =>
-                null != $contentType
-                    ? $contentType
-                    : "application/octet-stream",
+        $headers = [
+            "Content-Type" => $contentType ?: "application/octet-stream",
             "Cache-Control" => $cacheControl,
         ];
 
-        $_bodyJson = $body;
+        $response = $this->makeRequest(Method::PUT, $url, $headers, $body);
 
-        $_httpRequest = $this->makeRequest(HttpMethod::PUT, $_headers, $url);
-
-        $this->getHttpCallBack()?->callOnBeforeRequest($_httpRequest);
-
-        // and invoke the API call request to fetch the response
-        $response = Request::put($url, $_headers, $_bodyJson);
-
-        $_httpResponse = new HttpResponse(
-            $response->code,
-            $response->headers,
-            $response->raw_body,
-        );
-        $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
-
-        $this->getHttpCallBack()?->callOnAfterRequest($_httpContext);
-
-        $this->validateResponse($_httpResponse, $_httpContext);
-
-        return new ApiResponse($response->code, $response->headers, null);
+        return $this->buildApiResponse($response, nullResponseBody: true);
     }
 
     /**
@@ -241,37 +215,13 @@ class APIController extends BaseController
      * @return ApiResponse response from the API call
      * @throws APIException Thrown if API call fails
      */
-    public function deleteMedia(string $accountId, string $mediaId)
+    public function deleteMedia(string $accountId, string $mediaId): ApiResponse
     {
         $url = "/users/{$accountId}/media/{$mediaId}";
 
-        $url = APIHelper::cleanUrl(
-            $this->config->getBaseUri(Servers::MESSAGINGDEFAULT) . $url,
-        );
+        $response = $this->makeRequest(Method::DELETE, $url);
 
-        $_headers = [
-            "user-agent" => BaseController::USER_AGENT,
-        ];
-
-        $_httpRequest = $this->makeRequest(HttpMethod::DELETE, $_headers, $url);
-
-        $this->getHttpCallBack()?->callOnBeforeRequest($_httpRequest);
-
-        // and invoke the API call request to fetch the response
-        $response = Request::delete($url, $_headers);
-
-        $_httpResponse = new HttpResponse(
-            $response->code,
-            $response->headers,
-            $response->raw_body,
-        );
-        $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
-
-        $this->getHttpCallBack()?->callOnAfterRequest($_httpContext);
-
-        $this->validateResponse($_httpResponse, $_httpContext);
-
-        return new ApiResponse($response->code, $response->headers, null);
+        return $this->buildApiResponse($response, nullResponseBody: true);
     }
 
     /**
@@ -306,10 +256,10 @@ class APIController extends BaseController
         ?string $toDateTime = null,
         ?string $pageToken = null,
         ?int $limit = null,
-    ) {
+    ): ApiResponse {
         $url = "/users/{$accountId}/messages";
 
-        APIHelper::appendUrlWithQueryParameters($url, [
+        $queryString = http_build_query([
             "messageId" => $messageId,
             "sourceTn" => $sourceTn,
             "destinationTn" => $destinationTn,
@@ -321,103 +271,55 @@ class APIController extends BaseController
             "limit" => $limit,
         ]);
 
-        $url = APIHelper::cleanUrl(
-            $this->config->getBaseUri(Servers::MESSAGINGDEFAULT) . $url,
-        );
+        if ($queryString) {
+            $url .= "?{$queryString}";
+        }
 
-        $_headers = [
-            "user-agent" => BaseController::USER_AGENT,
+        $headers = [
             "Accept" => "application/json",
         ];
 
-        $_httpRequest = $this->makeRequest(HttpMethod::GET, $_headers, $url);
+        $response = $this->makeRequest(Method::GET, $url, $headers);
 
-        $this->getHttpCallBack()?->callOnBeforeRequest($_httpRequest);
-
-        // and invoke the API call request to fetch the response
-        $response = Request::get($url, $_headers);
-
-        $_httpResponse = new HttpResponse(
-            $response->code,
-            $response->headers,
-            $response->raw_body,
-        );
-        $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
-
-        $this->getHttpCallBack()?->callOnAfterRequest($_httpContext);
-
-        $this->validateResponse($_httpResponse, $_httpContext);
-
-        $mapper = $this->getJsonMapper();
-        $deserializedResponse = $mapper->mapClass(
-            $response->body,
-            "BandwidthLib\\Messaging\\Models\\BandwidthMessagesList",
-        );
-        return new ApiResponse(
-            $response->code,
-            $response->headers,
-            $deserializedResponse,
-        );
+        return $this->buildApiResponse($response, BandwidthMessagesList::class);
     }
 
     /**
-     * Endpoint for sending text messages and picture messages using V2 messaging.
+     * Send SMS text messages or multi-channel messages.
      *
-     * @param string $accountId User's account ID
-     * @param MessageRequest $body
-     * @return ApiResponse response from the API call
      * @throws APIException Thrown if API call fails
      */
-    public function createMessage(string $accountId, MessageRequest $body)
-    {
-        $url = "/users/{$accountId}/messages";
+    public function createMessage(
+        string $accountId,
+        MessageRequest|MultiChannelMessageRequest $body,
+    ): ApiResponse {
+        [$url, $mapResponseToClass] = match ($body::class) {
+            MessageRequest::class => [
+                "/users/{$accountId}/messages",
+                BandwidthMessage::class,
+            ],
+            MultiChannelMessageRequest::class => [
+                "/users/{$accountId}/messages/multiChannel",
+                BandwidthMultiChannelMessage::class,
+            ],
+        };
 
-        $url = APIHelper::cleanUrl(
-            $this->config->getBaseUri(Servers::MESSAGINGDEFAULT) . $url,
-        );
-
-        $_headers = [
-            "user-agent" => BaseController::USER_AGENT,
+        $headers = [
             "Accept" => "application/json",
             "content-type" => "application/json; charset=utf-8",
         ];
 
-        $_bodyJson = Request\Body::Json($body);
+        $body = Body::Json($body) ?: "";
 
-        $_httpRequest = $this->makeRequest(HttpMethod::POST, $_headers, $url);
+        $response = $this->makeRequest(Method::POST, $url, $headers, $body);
 
-        $this->getHttpCallBack()?->callOnBeforeRequest($_httpRequest);
-
-        // and invoke the API call request to fetch the response
-        $response = Request::post($url, $_headers, $_bodyJson);
-
-        $_httpResponse = new HttpResponse(
-            $response->code,
-            $response->headers,
-            $response->raw_body,
-        );
-        $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
-
-        $this->getHttpCallBack()?->callOnAfterRequest($_httpContext);
-
-        $this->validateResponse($_httpResponse, $_httpContext);
-
-        $mapper = $this->getJsonMapper();
-        $deserializedResponse = $mapper->mapClass(
-            $response->body,
-            "BandwidthLib\\Messaging\\Models\\BandwidthMessage",
-        );
-        return new ApiResponse(
-            $response->code,
-            $response->headers,
-            $deserializedResponse,
-        );
+        return $this->buildApiResponse($response, $mapResponseToClass);
     }
 
     public function createMultiChannelMessage(
         string $accountId,
         MultiChannelMessageRequest $body,
-    ): void {
-        // TODO
+    ): ApiResponse {
+        return $this->createMessage($accountId, $body);
     }
 }

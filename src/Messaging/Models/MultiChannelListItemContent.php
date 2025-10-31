@@ -5,17 +5,19 @@ namespace BandwidthLib\Messaging\Models;
 use BandwidthLib\Messaging\Models\Traits\Builder;
 use BandwidthLib\Messaging\Models\Traits\ToArray;
 
-class MultiChannelListItemContent implements \JsonSerializable
+/**
+ * Abstract class for the "real" content types to extend.
+ */
+abstract class MultiChannelListItemContent implements \JsonSerializable
 {
     use Builder, ToArray;
 
-    public function __construct()
-    {
-        // TODO
-    }
+    public function validate(): void {}
 
     public function jsonSerialize(): array
     {
-        return $this->toArray();
+        $this->validate();
+
+        return array_filter($this->toArray());
     }
 }
