@@ -16,13 +16,12 @@ class DateTimeHelper
     /**
      * Match the pattern for a datetime string in simeple date format
      */
-    const SIMPLE_DATE = 'Y-m-d';
+    const SIMPLE_DATE = "Y-m-d";
 
     /**
      * Match the pattern for a datetime string in Rfc1123 format
      */
-    const RFC1123 = 'D, d M Y H:i:s T';
-
+    const RFC1123 = "D, d M Y H:i:s T";
 
     /**
      * Convert a DateTime object to a string in simple date format
@@ -36,7 +35,7 @@ class DateTimeHelper
         } elseif ($date instanceof DateTime) {
             return $date->format(DateTimeHelper::SIMPLE_DATE);
         } else {
-            throw new Exception('Not a valid DateTime object.');
+            throw new Exception("Not a valid DateTime object.");
         }
     }
 
@@ -50,7 +49,7 @@ class DateTimeHelper
         if (is_null($dates)) {
             return null;
         } else {
-            return array_map('static::toSimpleDate', $dates);
+            return array_map("static::toSimpleDate", $dates);
         }
     }
 
@@ -69,7 +68,7 @@ class DateTimeHelper
             if ($x instanceof DateTime) {
                 return $x;
             } else {
-                throw new Exception('Incorrect format.');
+                throw new Exception("Incorrect format.");
             }
         }
     }
@@ -84,10 +83,9 @@ class DateTimeHelper
         if (is_null($dates)) {
             return null;
         } else {
-            return array_map('static::fromSimpleDate', $dates);
+            return array_map("static::fromSimpleDate", $dates);
         }
     }
-
 
     /**
      * Convert a DateTime object to a string in Rfc1123 format
@@ -99,9 +97,11 @@ class DateTimeHelper
         if (is_null($datetime)) {
             return null;
         } elseif ($datetime instanceof DateTime) {
-            return $datetime->setTimeZone(new DateTimeZone('GMT'))->format(static::RFC1123);
+            return $datetime
+                ->setTimeZone(new DateTimeZone("GMT"))
+                ->format(static::RFC1123);
         } else {
-            throw new Exception('Not a valid DateTime object.');
+            throw new Exception("Not a valid DateTime object.");
         }
     }
 
@@ -115,7 +115,7 @@ class DateTimeHelper
         if (is_null($datetimes)) {
             return null;
         } else {
-            return array_map('static::toRfc1123DateTime', $datetimes);
+            return array_map("static::toRfc1123DateTime", $datetimes);
         }
     }
 
@@ -132,9 +132,9 @@ class DateTimeHelper
             $x = DateTime::createFromFormat(DateTime::RFC1123, $datetime);
 
             if ($x instanceof DateTime) {
-                return $x->setTimeZone(new DateTimeZone('GMT'));
+                return $x->setTimeZone(new DateTimeZone("GMT"));
             } else {
-                throw new Exception('Incorrect format.');
+                throw new Exception("Incorrect format.");
             }
         }
     }
@@ -149,10 +149,9 @@ class DateTimeHelper
         if (is_null($datetimes)) {
             return null;
         } else {
-            return array_map('static::fromRfc1123DateTime', $datetimes);
+            return array_map("static::fromRfc1123DateTime", $datetimes);
         }
     }
-
 
     /**
      * Convert a DateTime object to a string in Rfc3339 format
@@ -164,9 +163,11 @@ class DateTimeHelper
         if (is_null($datetime)) {
             return null;
         } elseif ($datetime instanceof DateTime) {
-            return $datetime->setTimeZone(new DateTimeZone('UTC'))->format(DateTime::RFC3339);
+            return $datetime
+                ->setTimeZone(new DateTimeZone("UTC"))
+                ->format(DateTime::RFC3339);
         } else {
-            throw new Exception('Not a valid DateTime object.');
+            throw new Exception("Not a valid DateTime object.");
         }
     }
 
@@ -180,7 +181,7 @@ class DateTimeHelper
         if (is_null($datetimes)) {
             return null;
         } else {
-            return array_map('static::toRfc3339DateTime', $datetimes);
+            return array_map("static::toRfc3339DateTime", $datetimes);
         }
     }
 
@@ -195,24 +196,32 @@ class DateTimeHelper
             return null;
         } else {
             // Check for timezone information and append it if missing
-            if (!(substr($datetime, strlen($datetime)-1) == 'Z' || strpos($datetime, '+'))) {
-                $datetime .= 'Z';
+            if (
+                !(
+                    substr($datetime, strlen($datetime) - 1) == "Z" ||
+                    strpos($datetime, "+")
+                )
+            ) {
+                $datetime .= "Z";
             }
 
             $x = DateTime::createFromFormat(DateTime::RFC3339, $datetime);
 
             if ($x instanceof DateTime) {
-                return $x->setTimeZone(new DateTimeZone('UTC'));
+                return $x->setTimeZone(new DateTimeZone("UTC"));
             } else {
                 $x = DateTime::createFromFormat("Y-m-d\TH:i:s.uP", $datetime); // parse with up to 6 microseconds
                 if ($x instanceof DateTime) {
-                    return $x->setTimeZone(new DateTimeZone('UTC'));
+                    return $x->setTimeZone(new DateTimeZone("UTC"));
                 } else {
-                    $x = DateTime::createFromFormat("Y-m-d\TH:i:s.uuP", $datetime); // parse with up to 12 microseconds
+                    $x = DateTime::createFromFormat(
+                        "Y-m-d\TH:i:s.uuP",
+                        $datetime,
+                    ); // parse with up to 12 microseconds
                     if ($x instanceof DateTime) {
-                        return $x->setTimeZone(new DateTimeZone('UTC'));
+                        return $x->setTimeZone(new DateTimeZone("UTC"));
                     } else {
-                        throw new Exception('Incorrect format.');
+                        throw new Exception("Incorrect format.");
                     }
                 }
             }
@@ -229,10 +238,9 @@ class DateTimeHelper
         if (is_null($datetimes)) {
             return null;
         } else {
-            return array_map('static::fromRfc3339DateTime', $datetimes);
+            return array_map("static::fromRfc3339DateTime", $datetimes);
         }
     }
-
 
     /**
      * Convert a DateTime object to a Unix Timestamp
@@ -246,7 +254,7 @@ class DateTimeHelper
         } elseif ($datetime instanceof DateTime) {
             return $datetime->getTimestamp();
         } else {
-            throw new Exception('Not a valid DateTime object.');
+            throw new Exception("Not a valid DateTime object.");
         }
     }
 
@@ -260,7 +268,7 @@ class DateTimeHelper
         if (is_null($datetimes)) {
             return null;
         } else {
-            return array_map('static::toUnixTimestamp', $datetimes);
+            return array_map("static::toUnixTimestamp", $datetimes);
         }
     }
 
@@ -279,7 +287,7 @@ class DateTimeHelper
             if ($x instanceof DateTime) {
                 return $x;
             } else {
-                throw new Exception('Incorrect format.');
+                throw new Exception("Incorrect format.");
             }
         }
     }
@@ -294,7 +302,22 @@ class DateTimeHelper
         if (is_null($datetimes)) {
             return null;
         } else {
-            return array_map('static::fromUnixTimestamp', $datetimes);
+            return array_map("static::fromUnixTimestamp", $datetimes);
         }
+    }
+
+    public static function validISO8601Date(string $date): bool
+    {
+        $datePattern =
+            '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/';
+
+        if (!preg_match($datePattern, $date)) {
+            return false;
+        }
+
+        $dateTime = \DateTime::createFromFormat("Y-m-d\TH:i:s.vp", $date);
+
+        return $dateTime !== false &&
+            $dateTime->format("Y-m-d\TH:i:s.vp") === $date;
     }
 }
