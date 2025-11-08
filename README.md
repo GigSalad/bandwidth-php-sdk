@@ -6,14 +6,14 @@
 
 Support added for sending [RBM/RCS messages via Multi-Channel API](https://dev.bandwidth.com/apis/messaging-apis/messaging/#tag/Multi-Channel/operation/createMultiChannelMessage).
 
-See [example](#send-a-rbmrcs-message) below.
+See [example](#rbmrcs-messages) below.
 
 ---
 
 [![Test](https://github.com/Bandwidth/php-sdk/actions/workflows/test.yml/badge.svg)](https://github.com/Bandwidth/php-sdk/actions/workflows/test.yml)
 
 |    **OS**    |      **PHP**       |
-|:------------:|:------------------:|
+| :----------: | :----------------: |
 | Windows 2022 | 8.0, 8.1, 8.2, 8.3 |
 | Windows 2025 | 8.0, 8.1, 8.2, 8.3 |
 | Ubuntu 22.04 | 8.0, 8.1, 8.2, 8.3 |
@@ -89,10 +89,98 @@ try {
 }
 ```
 
-### Send a RBM/RCS message
+### RBM/RCS messages
+
+See multi-channel documentation: https://dev.bandwidth.com/apis/messaging-apis/messaging/#tag/Multi-Channel
+
+Core models to use for building different RBM types:
 
 ```php
-TODO...
+use BandwidthLib\Messaging\Models\Mms;
+use BandwidthLib\Messaging\Models\RbmCardCarousel;
+use BandwidthLib\Messaging\Models\RbmCardStandalone;
+use BandwidthLib\Messaging\Models\RbmMedia;
+use BandwidthLib\Messaging\Models\RbmText;
+use BandwidthLib\Messaging\Models\Sms;
+```
+
+Additional RBM helper and abstraction models:
+
+```php
+use BandwidthLib\Messaging\Models\MmsMediaFile;
+use BandwidthLib\Messaging\Models\RbmAction;
+use BandwidthLib\Messaging\Models\RbmActions;
+use BandwidthLib\Messaging\Models\RbmCardActions;
+use BandwidthLib\Messaging\Models\RbmCardContent;
+use BandwidthLib\Messaging\Models\RbmMediaFile;
+```
+
+Basic text RBM:
+
+```php
+use BandwidthLib\Messaging\Models\MultiChannelMessageRequest;
+use BandwidthLib\Messaging\Models\RbmText;
+
+$messagingClient = $client->getMessaging()->getClient();
+
+$messagingAccountId = "1234";
+$to = "+12345678901";
+$from = "RBM_SENDER";
+$applicationId = "1234-ce-4567-de";
+
+$content = RbmText::build()
+    ->text("This is a test RBM message!");
+
+$body = MultiChannelMessageRequest::rbm($to, $from, $applicationId, $content);
+
+try {
+    $response = $client->createMultiChannelMessage($messagingAccountId, $body);
+    var_dump($response);
+} catch (Exception $e) {
+    var_dump($e);
+}
+```
+
+Single card with actions RBM and fall back to SMS:
+
+```php
+use BandwidthLib\Messaging\Models\MultiChannelMessageRequest;
+use BandwidthLib\Messaging\Models\RbmCardStandalone;
+use BandwidthLib\Messaging\Models\RbmCardContent;
+use BandwidthLib\Messaging\Models\RbmCardActions;
+use BandwidthLib\Messaging\Models\Sms;
+
+$messagingClient = $client->getMessaging()->getClient();
+
+$messagingAccountId = "1234";
+$to = "+12345678901";
+$rbmFrom = "RBM_SENDER";
+$applicationId = "1234-ce-4567-de";
+
+$rbmCard = RbmCardStandalone::build()
+    ->cardContent(RbmCardContent::build()
+        ->title("Card title")
+        ->description("A body of text within the card.")
+        ->actions(RbmCardActions::build()
+            ->withShowLocation("Visit us", "base64 post back data", "35.220368347871265", "-80.8427683629851", "Charlotte, NC")
+            ->withDialPhone("Give us a call", "base64 post back data", "+12345678901")
+            ->withOpenUrl("Check our website", "base64 post back data", "https://some-url-here.com")
+            ->withReply("Got it", "base64 post back data")));
+
+$sms = Sms::build()
+    ->text("SMS fall back message");
+
+$smsFrom = "+12345678901";
+
+$body = MultiChannelMessageRequest::rbm($to, $rbmFrom, $applicationId, $rbmCard)
+    ->withSms($smsFrom, $applicationId, $sms);
+
+try {
+    $response = $client->createMultiChannelMessage($messagingAccountId, $body);
+    var_dump($response);
+} catch (Exception $e) {
+    var_dump($e);
+}
 ```
 
 ### Create BXML
