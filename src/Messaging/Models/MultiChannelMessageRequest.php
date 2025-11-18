@@ -2,9 +2,13 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use BandwidthLib\Messaging\Models\Contracts\ArrayConvertible;
 use BandwidthLib\Messaging\Models\Traits\Builder;
-use BandwidthLib\Messaging\Models\Traits\ToArray;
+use BandwidthLib\Messaging\Models\Traits\FromArray;
 use BandwidthLib\Messaging\Models\Enums\MessagePriority;
+use BandwidthLib\Messaging\Models\Traits\ToArray;
+use Exception;
+use JsonSerializable;
 
 /**
  * A multi-channel message request used for sending RBM/RCS messages
@@ -12,9 +16,9 @@ use BandwidthLib\Messaging\Models\Enums\MessagePriority;
  *
  * See: https://dev.bandwidth.com/apis/messaging-apis/messaging/#tag/Multi-Channel/operation/createMultiChannelMessage
  */
-class MultiChannelMessageRequest implements \JsonSerializable
+class MultiChannelMessageRequest implements JsonSerializable, ArrayConvertible
 {
-    use Builder, ToArray;
+    use Builder, FromArray, ToArray;
 
     protected function __construct(
         protected string $to = "",
@@ -103,12 +107,12 @@ class MultiChannelMessageRequest implements \JsonSerializable
      * A custom string that will be included in callback events of
      * the message.
      *
-     * @throws \Exception when tag is longer than 1024 characters
+     * @throws Exception when tag is longer than 1024 characters
      */
     public function tag(string $tag): static
     {
         if (strlen($tag) > 1024) {
-            throw new \Exception(
+            throw new Exception(
                 "Multi-channel message tag cannot exceed 1024 characters",
             );
         }
@@ -178,7 +182,7 @@ class MultiChannelMessageRequest implements \JsonSerializable
     public function validate(): void
     {
         if (!$this->to || $this->channelList->isEmpty()) {
-            throw new \Exception(
+            throw new Exception(
                 "Multi-channel message request must have a 'to' recipient and one or more items",
             );
         }

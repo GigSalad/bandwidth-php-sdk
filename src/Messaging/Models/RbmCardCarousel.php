@@ -3,6 +3,7 @@
 namespace BandwidthLib\Messaging\Models;
 
 use BandwidthLib\Messaging\Models\Enums\RbmCardCarouselWidth;
+use Exception;
 
 class RbmCardCarousel extends MultiChannelListItemContent
 {
@@ -10,7 +11,7 @@ class RbmCardCarousel extends MultiChannelListItemContent
 
     /**
      * @param RbmCardContent[] $cardContents
-     * @throws \Exception when more than the limit of cards are added
+     * @throws Exception when more than the limit of cards are added
      */
     public function __construct(
         protected RbmCardCarouselWidth $cardWidth = RbmCardCarouselWidth::Small,
@@ -26,7 +27,7 @@ class RbmCardCarousel extends MultiChannelListItemContent
     {
         $limit = static::LIMIT;
 
-        throw new \Exception(
+        throw new Exception(
             "RBM card carousel cannot have over {$limit} cards",
         );
     }
@@ -55,7 +56,7 @@ class RbmCardCarousel extends MultiChannelListItemContent
     }
 
     /**
-     * @throws \Exception when attempting to add another item when at the limit
+     * @throws Exception when attempting to add another item when at the limit
      */
     public function push(RbmCardContent $cardContent): void
     {
@@ -89,7 +90,7 @@ class RbmCardCarousel extends MultiChannelListItemContent
         );
 
         if (!empty($contentsWithoutMediaHeight)) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM card carousel contents must all have media with height",
             );
         }
@@ -98,7 +99,7 @@ class RbmCardCarousel extends MultiChannelListItemContent
     public function validate(): void
     {
         if ($this->isEmpty()) {
-            throw new \Exception("RBM card carousel cannot be empty");
+            throw new Exception("RBM card carousel cannot be empty");
         }
 
         $this->validateMedia();

@@ -3,11 +3,14 @@
 namespace BandwidthLib\Messaging\Models;
 
 use BandwidthLib\Messaging\Models\Traits\Builder;
+use BandwidthLib\Messaging\Models\Traits\FromArray;
 use BandwidthLib\Messaging\Models\Traits\ToArray;
+use Exception;
+use JsonSerializable;
 
-class MmsMediaFile implements \JsonSerializable
+class MmsMediaFile implements JsonSerializable
 {
-    use Builder, ToArray;
+    use Builder, FromArray, ToArray;
 
     /**
      * @param RbmActions[] $suggestions
@@ -23,7 +26,7 @@ class MmsMediaFile implements \JsonSerializable
     public function validate(): void
     {
         if (!$this->fileUrl) {
-            throw new \Exception("MMS media file must have a fileUrl.");
+            throw new Exception("MMS media file must have a fileUrl.");
         }
     }
 

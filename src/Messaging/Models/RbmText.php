@@ -2,6 +2,8 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use Exception;
+
 class RbmText extends MultiChannelListItemContent
 {
     protected function __construct(
@@ -35,7 +37,7 @@ class RbmText extends MultiChannelListItemContent
     public function validate(): void
     {
         if (!$this->text) {
-            throw new \Exception("RBM text must have text.");
+            throw new Exception("RBM text must have text.");
         }
     }
 }

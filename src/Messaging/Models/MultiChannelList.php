@@ -2,17 +2,22 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use BandwidthLib\Messaging\Models\Contracts\ArrayConvertible;
 use BandwidthLib\Messaging\Models\Traits\Builder;
+use BandwidthLib\Messaging\Models\Traits\FromArray;
+use BandwidthLib\Messaging\Models\Traits\ToArray;
+use Exception;
+use JsonSerializable;
 
-class MultiChannelList implements \JsonSerializable
+class MultiChannelList implements JsonSerializable, ArrayConvertible
 {
-    use Builder;
+    use Builder, FromArray, ToArray;
 
     public const int LIMIT = 4;
 
     /**
-     * @param \JsonSerializable[] $items
-     * @throws \Exception when more than the limit of items are added
+     * @param MultiChannelListItem[] $items
+     * @throws Exception when more than the limit of items are added
      */
     public function __construct(protected array $items = [])
     {
@@ -25,15 +30,15 @@ class MultiChannelList implements \JsonSerializable
     {
         $limit = static::LIMIT;
 
-        throw new \Exception(
+        throw new Exception(
             "Multi-channel list cannot have over {$limit} items",
         );
     }
 
     /**
-     * @throws \Exception when attempting to add another item when at the limit
+     * @throws Exception when attempting to add another item when at the limit
      */
-    public function push(\JsonSerializable $item): void
+    public function push(MultiChannelListItem $item): void
     {
         if ($this->isFull()) {
             $this->throwTooManyItemsException();
@@ -60,7 +65,7 @@ class MultiChannelList implements \JsonSerializable
     public function validate(): void
     {
         if ($this->isEmpty()) {
-            throw new \Exception("Multi-channel list cannot be empty");
+            throw new Exception("Multi-channel list cannot be empty");
         }
     }
 

@@ -4,6 +4,7 @@ namespace BandwidthLib\Messaging\Models;
 
 use BandwidthLib\Messaging\Models\Enums\Alignment;
 use BandwidthLib\Messaging\Models\Enums\Orientation;
+use Exception;
 
 class RbmCardStandalone extends MultiChannelListItemContent
 {
@@ -57,7 +58,7 @@ class RbmCardStandalone extends MultiChannelListItemContent
                 : $this->thumbnailImageAlignment === null;
 
         if (!$isValidAlignment) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM standalone card with orientation '{$this->orientation->value}' must have correct alignment",
             );
         }
@@ -78,7 +79,7 @@ class RbmCardStandalone extends MultiChannelListItemContent
         };
 
         if (!$isMediaHeightValid) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM standalone card with orientation '{$this->orientation->value}' must have correct content media",
             );
         }
@@ -95,7 +96,7 @@ class RbmCardStandalone extends MultiChannelListItemContent
                 : true;
 
         if (!$isValidTitle) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM standalone card with orientation '{$this->orientation->value}' must have a title",
             );
         }
@@ -104,7 +105,7 @@ class RbmCardStandalone extends MultiChannelListItemContent
     public function validate(): void
     {
         if (!$this->cardContent) {
-            throw new \Exception("RBM standalone card must have card content");
+            throw new Exception("RBM standalone card must have card content");
         }
 
         $this->validateAlignment();
