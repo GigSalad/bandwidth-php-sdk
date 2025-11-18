@@ -4,11 +4,14 @@ namespace BandwidthLib\Messaging\Models;
 
 use BandwidthLib\Messaging\Models\Enums\RbmMediaHeight;
 use BandwidthLib\Messaging\Models\Traits\Builder;
+use BandwidthLib\Messaging\Models\Traits\FromArray;
 use BandwidthLib\Messaging\Models\Traits\ToArray;
+use Exception;
+use JsonSerializable;
 
-class RbmMediaFile implements \JsonSerializable
+class RbmMediaFile implements JsonSerializable
 {
-    use Builder, ToArray;
+    use Builder, FromArray, ToArray;
 
     /**
      * @param RbmActions[] $suggestions
@@ -45,7 +48,7 @@ class RbmMediaFile implements \JsonSerializable
     public function validate(): void
     {
         if (!$this->fileUrl) {
-            throw new \Exception("RBM media file must have a fileUrl.");
+            throw new Exception("RBM media file must have a fileUrl.");
         }
     }
 

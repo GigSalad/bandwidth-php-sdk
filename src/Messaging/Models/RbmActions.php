@@ -3,11 +3,13 @@
 namespace BandwidthLib\Messaging\Models;
 
 use BandwidthLib\Messaging\Models\Traits\Builder;
+use Exception;
+use JsonSerializable;
 
 /**
  * A set of suggested actions shown below RBM content.
  */
-class RbmActions implements \JsonSerializable
+class RbmActions implements JsonSerializable
 {
     use Builder;
 
@@ -15,7 +17,7 @@ class RbmActions implements \JsonSerializable
 
     /**
      * @param RbmAction[] $actions
-     * @throws \Exception when more than the limit of actions/suggestions are added
+     * @throws Exception when more than the limit of actions/suggestions are added
      */
     protected function __construct(protected array $actions = [])
     {
@@ -28,13 +30,13 @@ class RbmActions implements \JsonSerializable
     {
         $limit = static::LIMIT;
 
-        throw new \Exception(
+        throw new Exception(
             "RBM Card actions/suggestions cannot have over {$limit} items",
         );
     }
 
     /**
-     * @throws \Exception when attempting to add another item when at the limit
+     * @throws Exception when attempting to add another item when at the limit
      */
     public function push(RbmAction $action): static
     {

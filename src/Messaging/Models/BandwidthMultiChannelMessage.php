@@ -2,15 +2,18 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use BandwidthLib\Messaging\Models\Contracts\ArrayConvertible;
+use BandwidthLib\Messaging\Models\Traits\FromArray;
 use BandwidthLib\Messaging\Models\Traits\ToArray;
+use JsonSerializable;
 
 /**
  * A mapping of the JSON response structure returned by the
  * multi-channel API.
  */
-class BandwidthMultiChannelMessage implements \JsonSerializable
+class BandwidthMultiChannelMessage implements JsonSerializable, ArrayConvertible
 {
-    use ToArray;
+    use FromArray, ToArray;
 
     /**
      * @param mixed[] $links

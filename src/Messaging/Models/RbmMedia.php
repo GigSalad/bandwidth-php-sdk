@@ -2,6 +2,8 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use Exception;
+
 class RbmMedia extends MultiChannelListItemContent
 {
     protected function __construct(
@@ -35,11 +37,11 @@ class RbmMedia extends MultiChannelListItemContent
     protected function validateMedia(): void
     {
         if (!$this->media) {
-            throw new \Exception("RBM media must have a media file.");
+            throw new Exception("RBM media must have a media file.");
         }
 
         if ($this->media->hasHeight()) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM media must have a media file with no height.",
             );
         }

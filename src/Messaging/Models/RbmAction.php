@@ -2,15 +2,18 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use BandwidthLib\Messaging\Models\Contracts\ArrayConvertible;
 use BandwidthLib\Messaging\Models\Enums\RbmActionType;
 use BandwidthLib\Messaging\Models\Traits\Builder;
 use BandwidthLib\Utils\DateTimeHelper;
+use Exception;
+use JsonSerializable;
 
 /**
  * A suggested action for the recipient that will be displayed
  * on a rich card or below the RBM message body content.
  */
-class RbmAction implements \JsonSerializable
+class RbmAction implements JsonSerializable, ArrayConvertible
 {
     use Builder;
 
@@ -38,12 +41,12 @@ class RbmAction implements \JsonSerializable
     /**
      * Displayed text for user to click
      *
-     * @throws \Exception when text is longer than 25 characters
+     * @throws Exception when text is longer than 25 characters
      */
     public function text(string $text): static
     {
         if (strlen($text) > 25) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion text must be 25 characters or less.",
             );
         }
@@ -55,12 +58,12 @@ class RbmAction implements \JsonSerializable
     /**
      * Base64 payload delivered to the webhook receiver when the action/suggestion is accessed.
      *
-     * @throws \Exception when post back data is longer than 2048 characters
+     * @throws Exception when post back data is longer than 2048 characters
      */
     public function postbackData(string $postbackData): static
     {
         if (strlen($postbackData) > 2048) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion post back data must be 2048 characters or less.",
             );
         }
@@ -93,12 +96,12 @@ class RbmAction implements \JsonSerializable
     /**
      * The location label for show location action/suggestion.
      *
-     * @throws \Exception when label is longer than 100 characters
+     * @throws Exception when label is longer than 100 characters
      */
     public function label(string $label): static
     {
         if (strlen($label) > 100) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to show location must have a label of 100 characters or less.",
             );
         }
@@ -110,12 +113,12 @@ class RbmAction implements \JsonSerializable
     /**
      * The title for create calendar event action/suggestion.
      *
-     * @throws \Exception when title is longer than 100 characters
+     * @throws Exception when title is longer than 100 characters
      */
     public function title(string $title): static
     {
         if (strlen($title) > 100) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to create calendar event must have a title of 100 characters or less.",
             );
         }
@@ -127,12 +130,12 @@ class RbmAction implements \JsonSerializable
     /**
      * The start time for create calendar event action/suggestion.
      *
-     * @throws \Exception when start time is not a valid ISO 8601 date time
+     * @throws Exception when start time is not a valid ISO 8601 date time
      */
     public function startTime(string $startTime): static
     {
         if (!DateTimeHelper::validISO8601Date($startTime)) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to create a calendar event must have valid ISO 8601 start date time.",
             );
         }
@@ -144,12 +147,12 @@ class RbmAction implements \JsonSerializable
     /**
      * The end time for create calendar event action/suggestion.
      *
-     * @throws \Exception when end time is not a valid ISO 8601 date time
+     * @throws Exception when end time is not a valid ISO 8601 date time
      */
     public function endTime(string $endTime): static
     {
         if (!DateTimeHelper::validISO8601Date($endTime)) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to create a calendar event must have valid ISO 8601 end date time.",
             );
         }
@@ -161,12 +164,12 @@ class RbmAction implements \JsonSerializable
     /**
      * The description for the create calendar event action/suggestion.
      *
-     * @throws \Exception when description is longer than 500 characters
+     * @throws Exception when description is longer than 500 characters
      */
     public function description(string $description): static
     {
         if (strlen($description) > 500) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to create calendar event must have a description of 500 characters or less.",
             );
         }
@@ -178,12 +181,12 @@ class RbmAction implements \JsonSerializable
     /**
      * The URL for the open URL action/suggestion.
      *
-     * @throws \Exception when URL is longer than 2048 characters
+     * @throws Exception when URL is longer than 2048 characters
      */
     public function url(string $url): static
     {
         if (strlen($url) > 2048) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to open a URL must have a URL that is 2048 characters or less.",
             );
         }
@@ -274,35 +277,6 @@ class RbmAction implements \JsonSerializable
     /**
      * @return mixed[]
      */
-    public function toArray(): array
-    {
-        $minimal = [
-            "type" => $this->type,
-            "text" => $this->text,
-            "postbackData" => $this->postbackData,
-        ];
-
-        return match ($this->type) {
-            RbmActionType::Reply, RbmActionType::RequestLocation => $minimal,
-            RbmActionType::DialPhone => [
-                ...$minimal,
-                ...$this->dialPhoneArray(),
-            ],
-            RbmActionType::ShowLocation => [
-                ...$minimal,
-                ...$this->showLocationArray(),
-            ],
-            RbmActionType::CreateCalendarEvent => [
-                ...$minimal,
-                ...$this->createCalendarEventArray(),
-            ],
-            RbmActionType::OpenUrl => [...$minimal, ...$this->openUrlArray()],
-        };
-    }
-
-    /**
-     * @return mixed[]
-     */
     protected function dialPhoneArray(): array
     {
         return ["phoneNumber" => $this->phoneNumber];
@@ -344,7 +318,7 @@ class RbmAction implements \JsonSerializable
     protected function validateDialPhone(): void
     {
         if (!$this->phoneNumber) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to dial phone is missing phone number.",
             );
         }
@@ -353,7 +327,7 @@ class RbmAction implements \JsonSerializable
     protected function validateShowLocation(): void
     {
         if (!$this->latitude || !$this->longitude) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to show location is missing latitude and/or longitude.",
             );
         }
@@ -362,7 +336,7 @@ class RbmAction implements \JsonSerializable
     protected function validateCreateCalendarEvent(): void
     {
         if (!$this->title || !$this->startTime || !$this->endTime) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to create calendar event is missing title, start time, and/or end time.",
             );
         }
@@ -371,7 +345,7 @@ class RbmAction implements \JsonSerializable
     protected function validateOpenUrl(): void
     {
         if (!$this->url) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion to open URL is missing the URL.",
             );
         }
@@ -380,7 +354,7 @@ class RbmAction implements \JsonSerializable
     public function validate(): void
     {
         if (!$this->type || !$this->text || !$this->postbackData) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM action/suggestion is missing type, text, or post back value.",
             );
         }
@@ -395,10 +369,58 @@ class RbmAction implements \JsonSerializable
         };
     }
 
+    /**
+     * @return mixed[]
+     */
+    public function toArray(): array
+    {
+        $minimal = [
+            "type" => $this->type,
+            "text" => $this->text,
+            "postbackData" => $this->postbackData,
+        ];
+
+        return match ($this->type) {
+            RbmActionType::Reply, RbmActionType::RequestLocation => $minimal,
+            RbmActionType::DialPhone => [
+                ...$minimal,
+                ...$this->dialPhoneArray(),
+            ],
+            RbmActionType::ShowLocation => [
+                ...$minimal,
+                ...$this->showLocationArray(),
+            ],
+            RbmActionType::CreateCalendarEvent => [
+                ...$minimal,
+                ...$this->createCalendarEventArray(),
+            ],
+            RbmActionType::OpenUrl => [...$minimal, ...$this->openUrlArray()],
+        };
+    }
+
     public function jsonSerialize(): array
     {
         $this->validate();
 
         return $this->toArray();
+    }
+
+    /**
+     * @throws Exception
+     * @param mixed[] $data
+     * @return null|static
+     */
+    public static function fromArray(array $data): static
+    {
+        // TODO
+    }
+
+    /**
+     * @param mixed[] $data
+     * @return null|static
+     */
+    public static function tryFromArray(array $data): ?static
+    {
+        // TODO
     }
 }

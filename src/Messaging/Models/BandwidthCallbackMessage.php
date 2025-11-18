@@ -7,10 +7,12 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use JsonSerializable;
+
 /**
  * @todo Write general description for this model
  */
-class BandwidthCallbackMessage implements \JsonSerializable
+class BandwidthCallbackMessage implements JsonSerializable
 {
     /**
      * @todo Write general description for this property
@@ -54,12 +56,12 @@ class BandwidthCallbackMessage implements \JsonSerializable
     public function __construct()
     {
         if (6 == func_num_args()) {
-            $this->time        = func_get_arg(0);
-            $this->type        = func_get_arg(1);
-            $this->to          = func_get_arg(2);
-            $this->errorCode   = func_get_arg(3);
+            $this->time = func_get_arg(0);
+            $this->type = func_get_arg(1);
+            $this->to = func_get_arg(2);
+            $this->errorCode = func_get_arg(3);
             $this->description = func_get_arg(4);
-            $this->message     = func_get_arg(5);
+            $this->message = func_get_arg(5);
         }
     }
 
@@ -68,13 +70,13 @@ class BandwidthCallbackMessage implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        $json = array();
-        $json['time']        = $this->time;
-        $json['type']        = $this->type;
-        $json['to']          = $this->to;
-        $json['errorCode']   = $this->errorCode;
-        $json['description'] = $this->description;
-        $json['message']     = $this->message;
+        $json = [];
+        $json["time"] = $this->time;
+        $json["type"] = $this->type;
+        $json["to"] = $this->to;
+        $json["errorCode"] = $this->errorCode;
+        $json["description"] = $this->description;
+        $json["message"] = $this->message;
 
         return array_filter($json);
     }

@@ -2,6 +2,8 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use Exception;
+
 /**
  * Regarding the media for MMS, the Bandwidth API limits file size to
  * 3.5MB. Specific carriers and channels may have a smaller limit that
@@ -28,12 +30,12 @@ class Mms extends MultiChannelListItemContent
     }
 
     /**
-     * @throws \Exception when text is longer than 2048 characters
+     * @throws Exception when text is longer than 2048 characters
      */
     public function text(string $text): static
     {
         if (strlen($text) > 2048) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM MMS item text must be 2048 characters or less.",
             );
         }
@@ -68,7 +70,7 @@ class Mms extends MultiChannelListItemContent
     protected function validateMedia(): void
     {
         if (!\is_array($this->media)) {
-            throw new \Exception("MMS media must be an array");
+            throw new Exception("MMS media must be an array");
         }
 
         $invalidMedia = array_filter(
@@ -77,14 +79,14 @@ class Mms extends MultiChannelListItemContent
         );
 
         if (!empty($invalidMedia)) {
-            throw new \Exception("MMS media must all be `MmsMediaFile` type");
+            throw new Exception("MMS media must all be `MmsMediaFile` type");
         }
     }
 
     public function validate(): void
     {
         if (!$this->text && empty($this->media)) {
-            throw new \Exception("MMS must have text, media, or both");
+            throw new Exception("MMS must have text, media, or both");
         }
 
         $this->validateMedia();

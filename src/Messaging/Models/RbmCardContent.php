@@ -2,12 +2,16 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use BandwidthLib\Messaging\Models\Contracts\ArrayConvertible;
 use BandwidthLib\Messaging\Models\Traits\Builder;
+use BandwidthLib\Messaging\Models\Traits\FromArray;
 use BandwidthLib\Messaging\Models\Traits\ToArray;
+use Exception;
+use JsonSerializable;
 
-class RbmCardContent implements \JsonSerializable
+class RbmCardContent implements JsonSerializable, ArrayConvertible
 {
-    use Builder, ToArray;
+    use Builder, FromArray, ToArray;
 
     protected function __construct(
         protected string $title = "",
@@ -64,7 +68,7 @@ class RbmCardContent implements \JsonSerializable
     public function validate(): void
     {
         if (!$this->title && !$this->description && !$this->media) {
-            throw new \Exception(
+            throw new Exception(
                 "RBM card content must have at least a title, description, or media",
             );
         }

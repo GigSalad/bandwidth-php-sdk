@@ -2,6 +2,8 @@
 
 namespace BandwidthLib\Messaging\Models\Traits;
 
+use Exception;
+
 trait MissingProperties
 {
     /**
@@ -26,7 +28,7 @@ trait MissingProperties
         if ($this->hasMissingProperties()) {
             $className = static::class;
 
-            throw new \Exception(
+            throw new Exception(
                 "Missing value(s) from class '{$className}': " .
                     implode(", ", $this->missingProperties()),
             );
