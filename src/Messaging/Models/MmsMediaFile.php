@@ -17,6 +17,14 @@ class MmsMediaFile implements JsonSerializable
      */
     protected function __construct(protected string $fileUrl = "") {}
 
+    /**
+     * @param mixed[] $data
+     */
+    public static function fromArray(array $data): static
+    {
+        return static::__construct($data["fileUrl"] ?? "");
+    }
+
     public function fileUrl(string $fileUrl): static
     {
         $this->fileUrl = $fileUrl;

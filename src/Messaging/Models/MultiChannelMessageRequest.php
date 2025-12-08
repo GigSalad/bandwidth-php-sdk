@@ -3,9 +3,9 @@
 namespace BandwidthLib\Messaging\Models;
 
 use BandwidthLib\Messaging\Models\Contracts\ArrayConvertible;
+use BandwidthLib\Messaging\Models\Enums\MessagePriority;
 use BandwidthLib\Messaging\Models\Traits\Builder;
 use BandwidthLib\Messaging\Models\Traits\FromArray;
-use BandwidthLib\Messaging\Models\Enums\MessagePriority;
 use BandwidthLib\Messaging\Models\Traits\ToArray;
 use Exception;
 use JsonSerializable;
@@ -30,6 +30,17 @@ class MultiChannelMessageRequest implements JsonSerializable, ArrayConvertible
         if (!$channelList) {
             $this->channelList = MultiChannelList::build();
         }
+    }
+
+    public static function fromArray(array $data): static
+    {
+        return static::__construct(
+            $data["to"],
+            MultiChannelList::fromArray($data["channelList"]),
+            $data["tag"],
+            MessagePriority::from($data["priority"]),
+            $data["expiration"],
+        );
     }
 
     /**
