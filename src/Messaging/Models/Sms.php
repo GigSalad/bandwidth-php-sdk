@@ -6,7 +6,12 @@ use Exception;
 
 class Sms extends MultiChannelListItemContent
 {
-    protected string $text = "";
+    protected function __construct(protected string $text = "") {}
+
+    public static function fromArray(array $data): static
+    {
+        return static::__construct($data["text"]);
+    }
 
     /**
      * @throws Exception when text is longer than 2048 characters

@@ -22,6 +22,16 @@ class MultiChannelListItem implements JsonSerializable, ArrayConvertible
         protected ?MultiChannelListItemContent $content = null,
     ) {}
 
+    public static function fromArray(array $data): static
+    {
+        return static::__construct(
+            $data["from"],
+            $data["applicationId"],
+            MessageChannel::from($data["channel"]),
+            MultiChannelListItemContent::fromArray($data["content"]),
+        );
+    }
+
     public function from(string $from): static
     {
         $this->from = $from;

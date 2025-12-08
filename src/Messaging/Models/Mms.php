@@ -18,15 +18,29 @@ class Mms extends MultiChannelListItemContent
      */
     protected function __construct(
         protected string $text = "",
-        protected string|MmsMediaFile|array $media = [],
+        protected array|string|MmsMediaFile $media = [],
     ) {
         if ($media) {
-            if (is_string($media)) {
-                $this->media = [MmsMediaFile::new($media)];
-            } elseif ($media instanceof MmsMediaFile) {
-                $this->media = [$media];
-            }
+            $this->media = static::intoMedia($media);
         }
+    }
+
+    public static function fromArray(array $data): static
+    {
+        return static::__construct($data["text"] ?? "", $data["media"] ?? []);
+    }
+
+    /**
+     * @param string|MmsMediaFile|MmsMediaFile[] $media
+     * @return MmsMediaFile[]
+     */
+    protected static function intoMedia(array|string|MmsMediaFile $media): array
+    {
+        return match (true) {
+            is_string($media) => [MmsMediaFile::new($media)],
+            $media instanceof MmsMediaFile => [$media],
+            default => $media,
+        };
     }
 
     /**
@@ -45,20 +59,19 @@ class Mms extends MultiChannelListItemContent
     }
 
     /**
+     * Assign media by overwriting what may be set already.
+     *
      * @param string|MmsMediaFile|MmsMediaFile[] $media
      */
-    public function media(string|MmsMediaFile|array $media): static
+    public function media(array|string|MmsMediaFile $media): static
     {
-        $this->media = match (true) {
-            is_string($media) => [MmsMediaFile::new($media)],
-            $media instanceof MmsMediaFile => [$media],
-            default => $media,
-        };
-
+        $this->media = static::intoMedia($media);
         return $this;
     }
 
     /**
+     * Add a single media item.
+     *
      * @param string|MmsMediaFile $media A media URL or media file object
      */
     public function withMedia(string|MmsMediaFile $media): static
@@ -85,7 +98,7 @@ class Mms extends MultiChannelListItemContent
 
     public function validate(): void
     {
-        if (!$this->text && empty($this->media)) {
+        if (!trim($this->text) && empty($this->media)) {
             throw new Exception("MMS must have text, media, or both");
         }
 
