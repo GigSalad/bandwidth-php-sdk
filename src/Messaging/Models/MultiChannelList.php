@@ -28,8 +28,11 @@ class MultiChannelList implements JsonSerializable, ArrayConvertible
 
     public static function fromArray(array $data): static
     {
-        $items = array_map(MultiChannelListItem::fromArray(...), $data);
-        return static::__construct($items);
+        $items = array_map(
+            MultiChannelListItem::fromArray(...),
+            $data["items"],
+        );
+        return new static($items);
     }
 
     private function throwTooManyItemsException(): void

@@ -27,7 +27,7 @@ class Mms extends MultiChannelListItemContent
 
     public static function fromArray(array $data): static
     {
-        return static::__construct($data["text"] ?? "", $data["media"] ?? []);
+        return new static($data["text"] ?? "", $data["media"] ?? []);
     }
 
     /**

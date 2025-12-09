@@ -13,7 +13,7 @@ class RbmText extends MultiChannelListItemContent
 
     public static function fromArray(array $data): static
     {
-        return static::__construct($data["text"], $data["suggestions"]);
+        return new static($data["text"], $data["suggestions"]);
     }
 
     public function text(string $text): static

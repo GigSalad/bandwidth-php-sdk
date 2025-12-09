@@ -34,12 +34,12 @@ class MultiChannelMessageRequest implements JsonSerializable, ArrayConvertible
 
     public static function fromArray(array $data): static
     {
-        return static::__construct(
+        return new static(
             $data["to"],
             MultiChannelList::fromArray($data["channelList"]),
-            $data["tag"],
-            MessagePriority::from($data["priority"]),
-            $data["expiration"],
+            $data["tag"] ?? "",
+            MessagePriority::from($data["priority"] ?? "default"),
+            $data["expiration"] ?? "",
         );
     }
 

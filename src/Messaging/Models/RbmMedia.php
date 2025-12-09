@@ -11,6 +11,14 @@ class RbmMedia extends MultiChannelListItemContent
         protected ?RbmActions $suggestions = null,
     ) {}
 
+    public static function fromArray(array $data): static
+    {
+        return new static(
+            RbmMediaFile::fromArray($data["media"]),
+            RbmActions::fromArray($data["suggestions"]),
+        );
+    }
+
     public function media(RbmMediaFile $media): static
     {
         $this->media = $media;

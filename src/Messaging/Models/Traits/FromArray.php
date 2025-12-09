@@ -9,7 +9,7 @@ trait FromArray
     /**
      * @param mixed[] $data
      */
-    abstract public static function fromArray(array $data): self;
+    abstract public static function fromArray(array $data): static;
 
     /**
      * @param mixed[] $data

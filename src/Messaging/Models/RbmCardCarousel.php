@@ -23,6 +23,24 @@ class RbmCardCarousel extends MultiChannelListItemContent
         }
     }
 
+    public static function fromArray(array $data): static
+    {
+        return new static(
+            $data["cardWidth"],
+            static::contentsFromArray($data["cardContents"] ?? []),
+            $data["suggestions"] ?? null,
+        );
+    }
+
+    /**
+     * @param mixed[] $data
+     * @return RbmCardContent[]
+     */
+    private static function contentsFromArray(array $data): array
+    {
+        return array_map(RbmCardContent::fromArray(...), $data);
+    }
+
     private function throwTooManyCardsException(): void
     {
         $limit = static::LIMIT;

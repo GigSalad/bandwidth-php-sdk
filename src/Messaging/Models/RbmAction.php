@@ -32,6 +32,24 @@ class RbmAction implements JsonSerializable, ArrayConvertible
         protected string $url = "",
     ) {}
 
+    public static function fromArray(array $data): static
+    {
+        return new static(
+            RbmActionType::from($data["type"]),
+            $data["text"],
+            $data["postbackData"] ?? "",
+            $data["phoneNumber"] ?? "",
+            $data["latitude"] ?? "",
+            $data["longitude"] ?? "",
+            $data["label"] ?? "",
+            $data["title"] ?? "",
+            $data["startTime"] ?? "",
+            $data["endTime"] ?? "",
+            $data["description"] ?? "",
+            $data["url"] ?? "",
+        );
+    }
+
     public function type(RbmActionType $type): static
     {
         $this->type = $type;

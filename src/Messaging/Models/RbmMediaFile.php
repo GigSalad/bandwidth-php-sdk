@@ -22,6 +22,18 @@ class RbmMediaFile implements JsonSerializable
         protected string $thumbnailUrl = "",
     ) {}
 
+    /**
+     * @param mixed[] $data
+     */
+    public static function fromArray(array $data): static
+    {
+        return new static(
+            RbmMediaHeight::from($data["height"]),
+            $data["fileUrl"],
+            $data["thumbnailUrl"],
+        );
+    }
+
     public function fileUrl(string $fileUrl): static
     {
         $this->fileUrl = $fileUrl;
