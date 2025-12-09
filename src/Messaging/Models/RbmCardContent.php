@@ -20,6 +20,16 @@ class RbmCardContent implements JsonSerializable, ArrayConvertible
         protected ?RbmCardActions $suggestions = null,
     ) {}
 
+    public static function fromArray(array $data): static
+    {
+        return new static(
+            $data["title"],
+            $data["description"],
+            RbmMediaFile::fromArray($data["media"]),
+            RbmCardActions::fromArray($data["suggestions"]),
+        );
+    }
+
     public function title(string $title): static
     {
         $this->title = $title;

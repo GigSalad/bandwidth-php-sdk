@@ -26,6 +26,23 @@ class RbmActions implements JsonSerializable
         }
     }
 
+    /**
+     * @param mixed[] $data
+     */
+    public static function fromArray(array $data): static
+    {
+        return new static(static::actionsFromArray($data["actions"]));
+    }
+
+    /**
+     * @param mixed[] $data
+     * @return RbmAction[]
+     */
+    private static function actionsFromArray(array $data): array
+    {
+        return array_map(RbmAction::fromArray(...), $data);
+    }
+
     private function throwTooManyItemsException(): void
     {
         $limit = static::LIMIT;

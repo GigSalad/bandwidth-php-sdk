@@ -22,7 +22,7 @@ class MmsMediaFile implements JsonSerializable
      */
     public static function fromArray(array $data): static
     {
-        return static::__construct($data["fileUrl"] ?? "");
+        return new static($data["fileUrl"] ?? "");
     }
 
     public function fileUrl(string $fileUrl): static

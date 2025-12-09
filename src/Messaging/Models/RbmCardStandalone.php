@@ -15,6 +15,16 @@ class RbmCardStandalone extends MultiChannelListItemContent
         protected ?RbmActions $suggestions = null,
     ) {}
 
+    public static function fromArray(array $data): static
+    {
+        return new static(
+            $data["orientation"],
+            $data["thumbnailImageAlignment"],
+            RbmCardContent::fromArray($data["cardContent"]),
+            RbmActions::fromArray($data["suggestions"]),
+        );
+    }
+
     public function orientation(Orientation $orientation): static
     {
         $this->orientation = $orientation;

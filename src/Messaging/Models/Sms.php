@@ -10,7 +10,7 @@ class Sms extends MultiChannelListItemContent
 
     public static function fromArray(array $data): static
     {
-        return static::__construct($data["text"]);
+        return new static($data["text"]);
     }
 
     /**

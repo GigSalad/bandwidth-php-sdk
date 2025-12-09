@@ -24,11 +24,29 @@ class MultiChannelListItem implements JsonSerializable, ArrayConvertible
 
     public static function fromArray(array $data): static
     {
-        return static::__construct(
+        $channel = MessageChannel::from($data["channel"]);
+        $content = $data["content"] ?? [];
+
+        $contentClass = match ($channel) {
+            // This seems like the most clean way to determine the
+            // specific RBM type...
+            MessageChannel::RBM => match (true) {
+                !empty($content["cardWidth"]) &&
+                    !empty($content["cardContents"])
+                    => RbmCardCarousel::class,
+                !empty($content["orientation"]) => RbmCardStandalone::class,
+                !empty($content["media"]) => RbmMedia::class,
+                default => RbmText::class,
+            },
+            MessageChannel::SMS => Mms::class,
+            MessageChannel::MMS => Sms::class,
+        };
+
+        return new static(
             $data["from"],
             $data["applicationId"],
-            MessageChannel::from($data["channel"]),
-            MultiChannelListItemContent::fromArray($data["content"]),
+            $channel,
+            $contentClass::fromArray($data["content"]),
         );
     }
 
