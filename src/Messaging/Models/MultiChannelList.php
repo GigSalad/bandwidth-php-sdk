@@ -5,13 +5,12 @@ namespace BandwidthLib\Messaging\Models;
 use BandwidthLib\Messaging\Models\Contracts\ArrayConvertible;
 use BandwidthLib\Messaging\Models\Traits\Builder;
 use BandwidthLib\Messaging\Models\Traits\FromArray;
-use BandwidthLib\Messaging\Models\Traits\ToArray;
 use Exception;
 use JsonSerializable;
 
 class MultiChannelList implements JsonSerializable, ArrayConvertible
 {
-    use Builder, FromArray, ToArray;
+    use Builder, FromArray;
 
     public const int LIMIT = 4;
 
@@ -28,10 +27,7 @@ class MultiChannelList implements JsonSerializable, ArrayConvertible
 
     public static function fromArray(array $data): static
     {
-        $items = array_map(
-            MultiChannelListItem::fromArray(...),
-            $data["items"],
-        );
+        $items = array_map(MultiChannelListItem::fromArray(...), $data);
         return new static($items);
     }
 
@@ -78,10 +74,14 @@ class MultiChannelList implements JsonSerializable, ArrayConvertible
         }
     }
 
-    public function jsonSerialize(): array
+    public function toArray(): array
     {
         $this->validate();
-
         return $this->items;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return array_filter($this->toArray());
     }
 }
