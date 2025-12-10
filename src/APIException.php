@@ -23,7 +23,7 @@ class APIException extends \Exception
      * @var \BandwidthLib\Http\HttpContext
      */
     private $context;
-    
+
     /**
      * The HTTP response code from the API request
      * @param string $reason the reason for raising an exception
@@ -44,9 +44,7 @@ class APIException extends \Exception
     /**
      * Unbox response into this exception class
      */
-    public function unbox()
-    {
-    }
+    public function unbox() {}
 
     /**
      * The HTTP context from the API request
