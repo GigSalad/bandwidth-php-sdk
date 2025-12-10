@@ -38,8 +38,8 @@ class MultiChannelListItem implements JsonSerializable, ArrayConvertible
                 !empty($content["media"]) => RbmMedia::class,
                 default => RbmText::class,
             },
-            MessageChannel::SMS => Mms::class,
-            MessageChannel::MMS => Sms::class,
+            MessageChannel::MMS => Mms::class,
+            MessageChannel::SMS => Sms::class,
         };
 
         return new static(
