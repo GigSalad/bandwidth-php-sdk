@@ -26,6 +26,15 @@ class BandwidthMultiChannelMessage implements JsonSerializable, ArrayConvertible
         public array $errors = [],
     ) {}
 
+    public static function fromArray(array $data): static
+    {
+        return new static(
+            $data["links"] ?? [],
+            $data["data"] ?? [],
+            $data["errors"] ?? [],
+        );
+    }
+
     public function jsonSerialize(): array
     {
         return $this->toArray();
