@@ -50,6 +50,19 @@ class RbmAction implements JsonSerializable, ArrayConvertible
         );
     }
 
+    /**
+     * @param mixed[] $data
+     * @return null|static
+     */
+    public static function tryFromArray(array $data): ?static
+    {
+        try {
+            return static::fromArray($data);
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
     public function type(RbmActionType $type): static
     {
         $this->type = $type;
@@ -76,10 +89,16 @@ class RbmAction implements JsonSerializable, ArrayConvertible
     /**
      * Base64 payload delivered to the webhook receiver when the action/suggestion is accessed.
      *
+     * @param string|mixed[] $postbackData
+     *
      * @throws Exception when post back data is longer than 2048 characters
      */
-    public function postbackData(string $postbackData): static
+    public function postbackData(string|array $postbackData): static
     {
+        if (!is_string($postbackData)) {
+            $postbackData = base64_encode(json_encode($postbackData));
+        }
+
         if (strlen($postbackData) > 2048) {
             throw new Exception(
                 "RBM action/suggestion post back data must be 2048 characters or less.",
@@ -213,8 +232,13 @@ class RbmAction implements JsonSerializable, ArrayConvertible
         return $this;
     }
 
-    public static function reply(string $text, string $postbackData): static
-    {
+    /**
+     * @param string|mixed[] $postbackData
+     */
+    public static function reply(
+        string $text,
+        string|array $postbackData,
+    ): static {
         return static::build()
             ->type(RbmActionType::Reply)
             ->text($text)
@@ -223,11 +247,12 @@ class RbmAction implements JsonSerializable, ArrayConvertible
 
     /**
      * @param string $phoneNumber E164 format phone number to dial.
+     * @param string|mixed[] $postbackData
      */
     public static function dialPhone(
         string $text,
         string $postbackData,
-        string $phoneNumber,
+        string|array $phoneNumber,
     ): static {
         return static::build()
             ->type(RbmActionType::DialPhone)
@@ -236,9 +261,12 @@ class RbmAction implements JsonSerializable, ArrayConvertible
             ->phoneNumber($phoneNumber);
     }
 
+    /**
+     * @param string|mixed[] $postbackData
+     */
     public static function showLocation(
         string $text,
-        string $postbackData,
+        string|array $postbackData,
         string $latitude,
         string $longitude,
         string $label = "",
@@ -252,9 +280,12 @@ class RbmAction implements JsonSerializable, ArrayConvertible
             ->label($label);
     }
 
+    /**
+     * @param string|mixed[] $postbackData
+     */
     public static function createCalendarEvent(
         string $text,
-        string $postbackData,
+        string|array $postbackData,
         string $title,
         string $startTime,
         string $endTime,
@@ -270,9 +301,12 @@ class RbmAction implements JsonSerializable, ArrayConvertible
             ->description($description);
     }
 
+    /**
+     * @param string|mixed[] $postbackData
+     */
     public static function openUrl(
         string $text,
-        string $postbackData,
+        string|array $postbackData,
         string $url,
     ): static {
         return static::build()
@@ -282,9 +316,12 @@ class RbmAction implements JsonSerializable, ArrayConvertible
             ->url($url);
     }
 
+    /**
+     * @param string|mixed[] $postbackData
+     */
     public static function requestLocation(
         string $text,
-        string $postbackData,
+        string|array $postbackData,
     ): static {
         return static::build()
             ->type(RbmActionType::RequestLocation)
@@ -392,28 +429,22 @@ class RbmAction implements JsonSerializable, ArrayConvertible
      */
     public function toArray(): array
     {
-        $minimal = [
+        $base = [
             "type" => $this->type,
             "text" => $this->text,
             "postbackData" => $this->postbackData,
         ];
 
-        return match ($this->type) {
-            RbmActionType::Reply, RbmActionType::RequestLocation => $minimal,
-            RbmActionType::DialPhone => [
-                ...$minimal,
-                ...$this->dialPhoneArray(),
-            ],
-            RbmActionType::ShowLocation => [
-                ...$minimal,
-                ...$this->showLocationArray(),
-            ],
-            RbmActionType::CreateCalendarEvent => [
-                ...$minimal,
-                ...$this->createCalendarEventArray(),
-            ],
-            RbmActionType::OpenUrl => [...$minimal, ...$this->openUrlArray()],
+        $extra = match ($this->type) {
+            RbmActionType::DialPhone => $this->dialPhoneArray(),
+            RbmActionType::ShowLocation => $this->showLocationArray(),
+            RbmActionType::CreateCalendarEvent
+                => $this->createCalendarEventArray(),
+            RbmActionType::OpenUrl => $this->openUrlArray(),
+            default => [],
         };
+
+        return [...$base, ...$extra];
     }
 
     public function jsonSerialize(): array
@@ -421,24 +452,5 @@ class RbmAction implements JsonSerializable, ArrayConvertible
         $this->validate();
 
         return $this->toArray();
-    }
-
-    /**
-     * @throws Exception
-     * @param mixed[] $data
-     * @return null|static
-     */
-    public static function fromArray(array $data): static
-    {
-        // TODO
-    }
-
-    /**
-     * @param mixed[] $data
-     * @return null|static
-     */
-    public static function tryFromArray(array $data): ?static
-    {
-        // TODO
     }
 }

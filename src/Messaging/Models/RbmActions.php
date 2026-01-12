@@ -2,6 +2,7 @@
 
 namespace BandwidthLib\Messaging\Models;
 
+use BandwidthLib\Messaging\Models\Contracts\ArrayConvertible;
 use BandwidthLib\Messaging\Models\Traits\Builder;
 use Exception;
 use JsonSerializable;
@@ -9,7 +10,7 @@ use JsonSerializable;
 /**
  * A set of suggested actions shown below RBM content.
  */
-class RbmActions implements JsonSerializable
+class RbmActions implements JsonSerializable, ArrayConvertible
 {
     use Builder;
 
@@ -32,6 +33,19 @@ class RbmActions implements JsonSerializable
     public static function fromArray(array $data): static
     {
         return new static(static::actionsFromArray($data["actions"]));
+    }
+
+    /**
+     * @param mixed[] $data
+     * @return null|static
+     */
+    public static function tryFromArray(array $data): ?static
+    {
+        try {
+            return static::fromArray($data);
+        } catch (Exception $e) {
+            return null;
+        }
     }
 
     /**
@@ -65,24 +79,33 @@ class RbmActions implements JsonSerializable
         return $this;
     }
 
-    public function withReply(string $text, string $postbackData): static
+    /**
+     * @param string|mixed[] $postbackData
+     */
+    public function withReply(string $text, string|array $postbackData): static
     {
         $this->push(RbmAction::reply($text, $postbackData));
         return $this;
     }
 
+    /**
+     * @param string|mixed[] $postbackData
+     */
     public function withDialPhone(
         string $text,
-        string $postbackData,
+        string|array $postbackData,
         string $phoneNumber,
     ): static {
         $this->push(RbmAction::dialPhone($text, $postbackData, $phoneNumber));
         return $this;
     }
 
+    /**
+     * @param string|mixed[] $postbackData
+     */
     public function withShowLocation(
         string $text,
-        string $postbackData,
+        string|array $postbackData,
         string $latitude,
         string $longitude,
         string $label = "",
@@ -100,9 +123,12 @@ class RbmActions implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @param string|mixed[] $postbackData
+     */
     public function withCreateCalendarEvent(
         string $text,
-        string $postbackData,
+        string|array $postbackData,
         string $title,
         string $startTime,
         string $endTime,
@@ -122,18 +148,24 @@ class RbmActions implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @param string|mixed[] $postbackData
+     */
     public function withOpenUrl(
         string $text,
-        string $postbackData,
+        string|array $postbackData,
         string $url,
     ): static {
         $this->push(RbmAction::openUrl($text, $postbackData, $url));
         return $this;
     }
 
+    /**
+     * @param string|mixed[] $postbackData
+     */
     public function withRequestLocation(
         string $text,
-        string $postbackData,
+        string|array $postbackData,
     ): static {
         $this->push(RbmAction::requestLocation($text, $postbackData));
         return $this;
@@ -154,8 +186,13 @@ class RbmActions implements JsonSerializable
         return $this->count() >= static::LIMIT;
     }
 
-    public function jsonSerialize(): array
+    public function toArray(): array
     {
         return $this->actions;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 }
