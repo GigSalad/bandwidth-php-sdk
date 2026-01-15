@@ -25,8 +25,12 @@ class RbmCardContent implements JsonSerializable, ArrayConvertible
         return new static(
             $data["title"],
             $data["description"],
-            RbmMediaFile::fromArray($data["media"]),
-            RbmCardActions::fromArray($data["suggestions"]),
+            isset($data["media"])
+                ? RbmMediaFile::fromArray($data["media"])
+                : null,
+            isset($data["suggestions"])
+                ? RbmCardActions::fromArray($data["suggestions"])
+                : null,
         );
     }
 
@@ -86,8 +90,6 @@ class RbmCardContent implements JsonSerializable, ArrayConvertible
 
     public function jsonSerialize(): array
     {
-        $this->validate();
-
-        return array_filter($this->toArray());
+        return $this->toArray();
     }
 }

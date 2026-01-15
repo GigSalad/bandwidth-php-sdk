@@ -203,8 +203,6 @@ class MultiChannelMessageRequest implements JsonSerializable, ArrayConvertible
 
     public function jsonSerialize(): array
     {
-        $this->validate();
-
-        return array_filter($this->toArray());
+        return $this->toArray();
     }
 }

@@ -449,8 +449,6 @@ class RbmAction implements JsonSerializable, ArrayConvertible
 
     public function jsonSerialize(): array
     {
-        $this->validate();
-
         return $this->toArray();
     }
 }

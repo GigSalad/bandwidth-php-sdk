@@ -20,8 +20,12 @@ class RbmCardStandalone extends MultiChannelListItemContent
         return new static(
             $data["orientation"],
             $data["thumbnailImageAlignment"],
-            RbmCardContent::fromArray($data["cardContent"]),
-            RbmActions::fromArray($data["suggestions"]),
+            isset($data["cardContent"])
+                ? RbmCardContent::fromArray($data["cardContent"])
+                : null,
+            isset($data["suggestions"])
+                ? RbmActions::fromArray($data["suggestions"])
+                : null,
         );
     }
 
