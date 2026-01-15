@@ -188,7 +188,10 @@ class RbmActions implements JsonSerializable, ArrayConvertible
 
     public function toArray(): array
     {
-        return $this->actions;
+        return array_map(
+            fn(RbmAction $action) => $action->toArray(),
+            $this->actions,
+        );
     }
 
     public function jsonSerialize(): array

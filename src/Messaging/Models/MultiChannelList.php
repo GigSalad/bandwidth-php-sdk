@@ -77,11 +77,15 @@ class MultiChannelList implements JsonSerializable, ArrayConvertible
     public function toArray(): array
     {
         $this->validate();
-        return $this->items;
+
+        return array_map(
+            fn(MultiChannelListItem $item) => $item->toArray(),
+            $this->items,
+        );
     }
 
     public function jsonSerialize(): array
     {
-        return array_filter($this->toArray());
+        return $this->toArray();
     }
 }

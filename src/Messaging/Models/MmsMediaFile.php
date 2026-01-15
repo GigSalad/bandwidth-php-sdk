@@ -37,8 +37,6 @@ class MmsMediaFile implements JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $this->validate();
-
-        return array_filter($this->toArray());
+        return $this->toArray();
     }
 }

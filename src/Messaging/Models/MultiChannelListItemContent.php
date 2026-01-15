@@ -17,12 +17,8 @@ abstract class MultiChannelListItemContent implements
 {
     use Builder, FromArray, ToArray;
 
-    public function validate(): void {}
-
     public function jsonSerialize(): array
     {
-        $this->validate();
-
-        return array_filter($this->toArray());
+        return $this->toArray();
     }
 }

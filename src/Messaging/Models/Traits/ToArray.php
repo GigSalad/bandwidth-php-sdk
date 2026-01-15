@@ -2,14 +2,32 @@
 
 namespace BandwidthLib\Messaging\Models\Traits;
 
+use Exception;
+
 trait ToArray
 {
+    /**
+     * There is no validation by default but classes using this trait
+     * can provide their own implementation to throw errors or handle
+     * validation in any way.
+     *
+     * This is currently entwined with `toArray()` but it's public and
+     * might serve other purposes or could become a separate trait...
+     *
+     * @throws Exception
+     */
+    public function validate(): void {}
+
     /**
      * @return mixed[]
      */
     public function toArray(): array
     {
-        return array_map(static::toArrayValue(...), get_object_vars($this));
+        $this->validate();
+
+        return array_filter(
+            array_map(static::toArrayValue(...), get_object_vars($this)),
+        );
     }
 
     protected static function toArrayValue(mixed $value): mixed
