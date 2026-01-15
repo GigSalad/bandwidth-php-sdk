@@ -12,9 +12,6 @@ class MmsMediaFile implements JsonSerializable
 {
     use Builder, FromArray, ToArray;
 
-    /**
-     * @param RbmActions[] $suggestions
-     */
     protected function __construct(protected string $fileUrl = "") {}
 
     /**
