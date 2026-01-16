@@ -18,8 +18,10 @@ class RbmCardStandalone extends MultiChannelListItemContent
     public static function fromArray(array $data): static
     {
         return new static(
-            $data["orientation"],
-            $data["thumbnailImageAlignment"],
+            Orientation::from($data["orientation"]),
+            isset($data["thumbnailImageAlignment"])
+                ? Alignment::from($data["thumbnailImageAlignment"])
+                : null,
             isset($data["cardContent"])
                 ? RbmCardContent::fromArray($data["cardContent"])
                 : null,

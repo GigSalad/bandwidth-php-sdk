@@ -32,7 +32,7 @@ class RbmActions implements JsonSerializable, ArrayConvertible
      */
     public static function fromArray(array $data): static
     {
-        return new static(static::actionsFromArray($data["actions"]));
+        return new static(static::actionsFromArray($data));
     }
 
     /**
