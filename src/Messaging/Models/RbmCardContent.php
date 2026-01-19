@@ -81,9 +81,9 @@ class RbmCardContent implements JsonSerializable, ArrayConvertible
 
     public function validate(): void
     {
-        if (!$this->title && !$this->description && !$this->media) {
+        if (!$this->title || !$this->description || !$this->media) {
             throw new Exception(
-                "RBM card content must have at least a title, description, or media",
+                "RBM card content must have at a title, a description, and media",
             );
         }
     }
