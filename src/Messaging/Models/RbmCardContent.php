@@ -57,9 +57,19 @@ class RbmCardContent implements JsonSerializable, ArrayConvertible
         return !empty($this->title);
     }
 
+    public function hasDescription(): bool
+    {
+        return !empty($this->description);
+    }
+
+    public function hasMedia(): bool
+    {
+        return !empty($this->media);
+    }
+
     public function mediaHasHeight(): bool
     {
-        return $this->media->hasHeight();
+        return $this->media?->hasHeight() ?? false;
     }
 
     public function actions(RbmCardActions $actions): static
@@ -81,10 +91,18 @@ class RbmCardContent implements JsonSerializable, ArrayConvertible
 
     public function validate(): void
     {
-        if (!$this->title || !$this->description || !$this->media) {
+        if (
+            !$this->hasTitle() &&
+            !$this->hasDescription() &&
+            !$this->hasMedia()
+        ) {
             throw new Exception(
-                "RBM card content must have at a title, a description, and media",
+                "RBM card content must have at a title, a description, or media",
             );
+        }
+
+        if ($this->hasMedia() && !$this->mediaHasHeight()) {
+            throw new Exception("RBM card media must specify a height");
         }
     }
 
