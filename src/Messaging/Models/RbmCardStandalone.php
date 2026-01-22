@@ -81,12 +81,17 @@ class RbmCardStandalone extends MultiChannelListItemContent
     }
 
     /**
-     * Depending on the card's orientation the content media must have
-     * corresponding properties. That is, media must have height when
-     * the card is in vertical orientation.
+     * When a card has media the card's orientation determines what
+     * corresponding properties the media must have. Media must have
+     * height when the card is in vertical orientation, or it must not
+     * have height.
      */
     protected function validateMedia(): void
     {
+        if (!$this->cardContent->hasMedia()) {
+            return;
+        }
+
         $mediaHasHeight = $this->cardContent->mediaHasHeight();
 
         $isMediaHeightValid = match ($this->orientation) {
@@ -101,23 +106,6 @@ class RbmCardStandalone extends MultiChannelListItemContent
         }
     }
 
-    /**
-     * Depending on the card's orientation the content needs a title.
-     */
-    protected function validateTitle(): void
-    {
-        $isValidTitle =
-            $this->orientation === Orientation::Horizontal
-                ? $this->cardContent->hasTitle()
-                : true;
-
-        if (!$isValidTitle) {
-            throw new Exception(
-                "RBM standalone card with orientation '{$this->orientation->value}' must have a title",
-            );
-        }
-    }
-
     public function validate(): void
     {
         if (!$this->cardContent) {
@@ -126,6 +114,5 @@ class RbmCardStandalone extends MultiChannelListItemContent
 
         $this->validateAlignment();
         $this->validateMedia();
-        $this->validateTitle();
     }
 }
