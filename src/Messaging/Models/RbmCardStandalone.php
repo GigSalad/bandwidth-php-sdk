@@ -10,7 +10,7 @@ class RbmCardStandalone extends MultiChannelListItemContent
 {
     public function __construct(
         protected Orientation $orientation = Orientation::Vertical,
-        protected ?Alignment $thumbnailImageAlignment = null,
+        protected Alignment $thumbnailImageAlignment = Alignment::Left,
         protected ?RbmCardContent $cardContent = null,
         protected ?RbmActions $suggestions = null,
     ) {}
@@ -19,9 +19,7 @@ class RbmCardStandalone extends MultiChannelListItemContent
     {
         return new static(
             Orientation::from($data["orientation"]),
-            isset($data["thumbnailImageAlignment"])
-                ? Alignment::from($data["thumbnailImageAlignment"])
-                : null,
+            Alignment::from($data["thumbnailImageAlignment"]),
             isset($data["cardContent"])
                 ? RbmCardContent::fromArray($data["cardContent"])
                 : null,
@@ -37,7 +35,7 @@ class RbmCardStandalone extends MultiChannelListItemContent
         return $this;
     }
 
-    public function alignment(?Alignment $alignment): static
+    public function alignment(Alignment $alignment): static
     {
         $this->thumbnailImageAlignment = $alignment;
         return $this;
@@ -64,20 +62,6 @@ class RbmCardStandalone extends MultiChannelListItemContent
         }
 
         return $this;
-    }
-
-    protected function validateAlignment(): void
-    {
-        $isValidAlignment =
-            $this->orientation === Orientation::Horizontal
-                ? $this->thumbnailImageAlignment !== null
-                : $this->thumbnailImageAlignment === null;
-
-        if (!$isValidAlignment) {
-            throw new Exception(
-                "RBM standalone card with orientation '{$this->orientation->value}' must have correct alignment",
-            );
-        }
     }
 
     /**
@@ -112,7 +96,6 @@ class RbmCardStandalone extends MultiChannelListItemContent
             throw new Exception("RBM standalone card must have card content");
         }
 
-        $this->validateAlignment();
         $this->validateMedia();
     }
 }
