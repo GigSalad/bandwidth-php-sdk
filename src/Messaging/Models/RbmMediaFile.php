@@ -17,8 +17,8 @@ class RbmMediaFile implements JsonSerializable
      * @param RbmActions[] $suggestions
      */
     protected function __construct(
-        protected RbmMediaHeight $height = RbmMediaHeight::Medium,
         protected string $fileUrl = "",
+        protected ?RbmMediaHeight $height = null,
         protected ?string $thumbnailUrl = null,
     ) {}
 
@@ -28,8 +28,10 @@ class RbmMediaFile implements JsonSerializable
     public static function fromArray(array $data): static
     {
         return new static(
-            RbmMediaHeight::from($data["height"]),
             $data["fileUrl"],
+            isset($data["height"])
+                ? RbmMediaHeight::from($data["height"])
+                : null,
             $data["thumbnailUrl"] ?? null,
         );
     }

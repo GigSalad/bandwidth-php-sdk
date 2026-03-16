@@ -100,10 +100,6 @@ class RbmCardContent implements JsonSerializable, ArrayConvertible
                 "RBM card content must have at a title, a description, or media",
             );
         }
-
-        if ($this->hasMedia() && !$this->mediaHasHeight()) {
-            throw new Exception("RBM card media must specify a height");
-        }
     }
 
     public function jsonSerialize(): array
