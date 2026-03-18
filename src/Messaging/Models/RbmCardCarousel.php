@@ -100,26 +100,10 @@ class RbmCardCarousel extends MultiChannelListItemContent
         return $this->count() >= static::LIMIT;
     }
 
-    protected function validateMedia(): void
-    {
-        $contentsWithoutMediaHeight = array_filter(
-            $this->cardContents,
-            fn(RbmCardContent $cardContent) => !$cardContent->mediaHasHeight(),
-        );
-
-        if (!empty($contentsWithoutMediaHeight)) {
-            throw new Exception(
-                "RBM card carousel contents must all have media with height",
-            );
-        }
-    }
-
     public function validate(): void
     {
         if ($this->isEmpty()) {
             throw new Exception("RBM card carousel cannot be empty");
         }
-
-        $this->validateMedia();
     }
 }

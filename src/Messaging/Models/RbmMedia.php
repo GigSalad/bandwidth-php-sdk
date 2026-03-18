@@ -51,12 +51,6 @@ class RbmMedia extends MultiChannelListItemContent
         if (!$this->media) {
             throw new Exception("RBM media must have a media file.");
         }
-
-        if ($this->media->hasHeight()) {
-            throw new Exception(
-                "RBM media must have a media file with no height.",
-            );
-        }
     }
 
     public function validate(): void

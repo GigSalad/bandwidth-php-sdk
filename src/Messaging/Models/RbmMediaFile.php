@@ -52,11 +52,6 @@ class RbmMediaFile implements JsonSerializable
         return $this;
     }
 
-    public function hasHeight(): bool
-    {
-        return !empty($this->height);
-    }
-
     public function validate(): void
     {
         if (!$this->fileUrl) {
