@@ -37,7 +37,7 @@ class RbmAction implements JsonSerializable, ArrayConvertible
         return new static(
             RbmActionType::from($data["type"]),
             $data["text"],
-            $data["postbackData"] ?? "",
+            $data["postbackData"],
             $data["phoneNumber"] ?? "",
             $data["latitude"] ?? "",
             $data["longitude"] ?? "",
@@ -95,7 +95,12 @@ class RbmAction implements JsonSerializable, ArrayConvertible
      */
     public function postbackData(string|array $postbackData): static
     {
-        if (!is_string($postbackData)) {
+        if (is_array($postbackData)) {
+            // Append action type for richer data if it's available.
+            if ($this->type) {
+                $postbackData['__action_type'] = $this->type;
+            }
+
             $postbackData = base64_encode(json_encode($postbackData));
         }
 
