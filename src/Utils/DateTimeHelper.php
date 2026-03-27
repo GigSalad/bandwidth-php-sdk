@@ -309,15 +309,20 @@ class DateTimeHelper
     public static function validISO8601Date(string $date): bool
     {
         $datePattern =
-            '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/';
+            '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/';
 
         if (!preg_match($datePattern, $date)) {
             return false;
         }
 
-        $dateTime = \DateTime::createFromFormat("Y-m-d\TH:i:s.vp", $date);
+        $format = "Y-m-d\TH:i:s.vp";
+        $dateTime = DateTime::createFromFormat($format, $date);
 
-        return $dateTime !== false &&
-            $dateTime->format("Y-m-d\TH:i:s.vp") === $date;
+        if ($dateTime === false) {
+            $format = "Y-m-d\TH:i:sp";
+            $dateTime = DateTime::createFromFormat($format, $date);
+        }
+
+        return $dateTime !== false && $dateTime->format($format) === $date;
     }
 }

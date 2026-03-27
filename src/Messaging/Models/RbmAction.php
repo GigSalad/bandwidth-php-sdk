@@ -98,7 +98,7 @@ class RbmAction implements JsonSerializable, ArrayConvertible
         if (is_array($postbackData)) {
             // Append action type for richer data if it's available.
             if ($this->type) {
-                $postbackData['__action_type'] = $this->type;
+                $postbackData["__action_type"] = $this->type;
             }
 
             $postbackData = base64_encode(json_encode($postbackData));
@@ -178,7 +178,7 @@ class RbmAction implements JsonSerializable, ArrayConvertible
     {
         if (!DateTimeHelper::validISO8601Date($startTime)) {
             throw new Exception(
-                "RBM action/suggestion to create a calendar event must have valid ISO 8601 start date time.",
+                "RBM action/suggestion calendar event start '{$startTime}' is not a valid ISO 8601 date time.",
             );
         }
 
@@ -195,7 +195,7 @@ class RbmAction implements JsonSerializable, ArrayConvertible
     {
         if (!DateTimeHelper::validISO8601Date($endTime)) {
             throw new Exception(
-                "RBM action/suggestion to create a calendar event must have valid ISO 8601 end date time.",
+                "RBM action/suggestion calendar event end '{$endTime}' is not a valid ISO 8601 date time.",
             );
         }
 
