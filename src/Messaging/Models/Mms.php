@@ -14,7 +14,7 @@ use Exception;
 class Mms extends MultiChannelListItemContent
 {
     /**
-     * @param string|MmsMediaFile[] $media
+     * @param string|MmsMediaFile|MmsMediaFile[] $media
      */
     protected function __construct(
         protected string $text = "",

@@ -13,9 +13,6 @@ class RbmMediaFile implements JsonSerializable
 {
     use Builder, FromArray, ToArray;
 
-    /**
-     * @param RbmActions[] $suggestions
-     */
     protected function __construct(
         protected RbmMediaHeight $height = RbmMediaHeight::Medium,
         protected string $fileUrl = "",

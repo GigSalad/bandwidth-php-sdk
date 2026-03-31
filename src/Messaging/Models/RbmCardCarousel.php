@@ -26,9 +26,11 @@ class RbmCardCarousel extends MultiChannelListItemContent
     public static function fromArray(array $data): static
     {
         return new static(
-            $data["cardWidth"],
+            RbmCardCarouselWidth::from($data["cardWidth"] ?? ""),
             static::contentsFromArray($data["cardContents"] ?? []),
-            $data["suggestions"] ?? null,
+            isset($data["suggestions"])
+                ? RbmActions::fromArray($data["suggestions"])
+                : null,
         );
     }
 

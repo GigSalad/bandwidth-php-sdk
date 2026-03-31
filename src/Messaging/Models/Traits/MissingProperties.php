@@ -14,7 +14,7 @@ trait MissingProperties
     public function missingProperties(): array
     {
         return array_keys(
-            array_filter(get_object_vars($this), fn($value) => empty($value)),
+            array_filter(get_object_vars($this), fn($value) => is_null($value)),
         );
     }
 

@@ -178,7 +178,7 @@ class RbmActions implements JsonSerializable, ArrayConvertible
 
     public function isEmpty(): bool
     {
-        return empty($this->items);
+        return empty($this->actions);
     }
 
     public function isFull(): bool

@@ -192,7 +192,7 @@ class APIController extends BaseController
         string $accountId,
         string $mediaId,
         string $body,
-        ?string $contentType = "application/octet-stream",
+        string $contentType = "application/octet-stream",
         ?string $cacheControl = null,
     ): ApiResponse {
         $url = "/users/{$accountId}/media/{$mediaId}";
