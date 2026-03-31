@@ -27,7 +27,7 @@ trait ToArray
 
         return array_filter(
             array_map(static::toArrayValue(...), get_object_vars($this)),
-            is_null(...),
+            fn($value) => !is_null($value),
         );
     }
 
