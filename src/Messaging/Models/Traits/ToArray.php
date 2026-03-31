@@ -25,9 +25,13 @@ trait ToArray
     {
         $this->validate();
 
+        // We shouldn't remove `0` or `[]` values, but we don't want
+        // `null` or empty strings, which Bandwidth's API rejects with
+        // HTTP errors like "400 Request is malformed or invalid."
         return array_filter(
             array_map(static::toArrayValue(...), get_object_vars($this)),
-            fn($value) => !is_null($value),
+            fn($value) => !is_null($value) &&
+                (!is_string($value) || trim($value) !== ""),
         );
     }
 
