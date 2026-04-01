@@ -344,10 +344,14 @@ class APIController extends BaseController
         //handle errors defined at the API level
         $this->validateResponse($_httpResponse, $_httpContext);
         $mapper = $this->getJsonMapper();
-        $deserializedResponse = $mapper->mapClass(
-            $response->body,
-            'BandwidthLib\\PhoneNumberLookup\\Models\\LookupResponse'
-        );
+        $mapToClass = 'BandwidthLib\\PhoneNumberLookup\\Models\\LookupResponse';
+        $deserializedResponse = \is_array($response->body)
+            ? $mapper->mapClassArray(
+                $response->body,
+                $mapToClass,
+            )
+            : $mapper->mapClass($response->body, $mapToClass);
+
         return new ApiResponse($response->code, $response->headers, $deserializedResponse);
     }
 }
