@@ -257,7 +257,7 @@ class RbmAction implements JsonSerializable, ArrayConvertible
     public static function dialPhone(
         string $text,
         string|array $postbackData,
-        string|array $phoneNumber,
+        string $phoneNumber,
     ): static {
         return static::build()
             ->type(RbmActionType::DialPhone)

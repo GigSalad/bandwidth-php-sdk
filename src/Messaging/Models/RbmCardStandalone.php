@@ -8,7 +8,7 @@ use Exception;
 
 class RbmCardStandalone extends MultiChannelListItemContent
 {
-    public function __construct(
+    protected function __construct(
         protected Orientation $orientation = Orientation::Vertical,
         protected Alignment $thumbnailImageAlignment = Alignment::Left,
         protected ?RbmCardContent $cardContent = null,

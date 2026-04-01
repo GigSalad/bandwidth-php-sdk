@@ -92,7 +92,7 @@ class RbmCardContent implements JsonSerializable, ArrayConvertible
             !$this->hasMedia()
         ) {
             throw new Exception(
-                "RBM card content must have at a title, a description, or media",
+                "RBM card content must have a title, a description, or media",
             );
         }
     }

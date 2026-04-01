@@ -78,13 +78,15 @@ class RbmCardCarousel extends MultiChannelListItemContent
     /**
      * @throws Exception when attempting to add another item when at the limit
      */
-    public function push(RbmCardContent $cardContent): void
+    public function push(RbmCardContent $cardContent): static
     {
         if ($this->isFull()) {
             $this->throwTooManyCardsException();
         }
 
         $this->cardContents[] = $cardContent;
+
+        return $this;
     }
 
     public function count(): int

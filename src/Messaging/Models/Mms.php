@@ -50,7 +50,7 @@ class Mms extends MultiChannelListItemContent
     {
         if (strlen($text) > 2048) {
             throw new Exception(
-                "RBM MMS item text must be 2048 characters or less.",
+                "MMS item text must be 2048 characters or less.",
             );
         }
 

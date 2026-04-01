@@ -196,12 +196,7 @@ class DateTimeHelper
             return null;
         } else {
             // Check for timezone information and append it if missing
-            if (
-                !(
-                    substr($datetime, strlen($datetime) - 1) == "Z" ||
-                    strpos($datetime, "+")
-                )
-            ) {
+            if (!preg_match('/[Z]|[+-]\d{2}:\d{2}$/', $datetime)) {
                 $datetime .= "Z";
             }
 

@@ -20,7 +20,7 @@ class Sms extends MultiChannelListItemContent
     {
         if (strlen($text) > 2048) {
             throw new Exception(
-                "RBM SMS item text must be 2048 characters or less.",
+                "SMS item text must be 2048 characters or less.",
             );
         }
 
