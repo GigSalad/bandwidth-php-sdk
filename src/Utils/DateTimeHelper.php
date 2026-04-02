@@ -303,21 +303,23 @@ class DateTimeHelper
 
     public static function validISO8601Date(string $date): bool
     {
-        $datePattern =
-            '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/';
-
-        if (!preg_match($datePattern, $date)) {
+        if (
+            !preg_match(
+                '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/',
+                $date,
+            )
+        ) {
             return false;
         }
 
-        $format = "Y-m-d\TH:i:s.vp";
-        $dateTime = DateTime::createFromFormat($format, $date);
+        // Strip fractional seconds before parsing. PHP's format
+        // specifiers (v, u) are fixed-width on output, so a round-trip
+        // check would reject valid inputs like ".0Z" or ".1234Z". The
+        // regex above validated the fractional part's structure.
+        $normalized = preg_replace("/\.\d+/", "", $date);
 
-        if ($dateTime === false) {
-            $format = "Y-m-d\TH:i:sp";
-            $dateTime = DateTime::createFromFormat($format, $date);
-        }
+        $dateTime = DateTime::createFromFormat("Y-m-d\TH:i:sp", $normalized);
 
-        return $dateTime !== false && $dateTime->format($format) === $date;
+        return $dateTime !== false && $dateTime->getLastErrors() === false;
     }
 }
