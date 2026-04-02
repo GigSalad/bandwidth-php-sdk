@@ -82,10 +82,6 @@ class Mms extends MultiChannelListItemContent
 
     protected function validateMedia(): void
     {
-        if (!\is_array($this->media)) {
-            throw new Exception("MMS media must be an array");
-        }
-
         $invalidMedia = array_filter(
             $this->media,
             fn(mixed $mediaItem) => !($mediaItem instanceof MmsMediaFile),

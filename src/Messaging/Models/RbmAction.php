@@ -5,6 +5,7 @@ namespace BandwidthLib\Messaging\Models;
 use BandwidthLib\Messaging\Models\Contracts\ArrayConvertible;
 use BandwidthLib\Messaging\Models\Enums\RbmActionType;
 use BandwidthLib\Messaging\Models\Traits\Builder;
+use BandwidthLib\Messaging\Models\Traits\FromArray;
 use BandwidthLib\Utils\DateTimeHelper;
 use Exception;
 use JsonSerializable;
@@ -15,7 +16,7 @@ use JsonSerializable;
  */
 class RbmAction implements JsonSerializable, ArrayConvertible
 {
-    use Builder;
+    use Builder, FromArray;
 
     protected function __construct(
         protected ?RbmActionType $type = null,
@@ -48,19 +49,6 @@ class RbmAction implements JsonSerializable, ArrayConvertible
             $data["description"] ?? "",
             $data["url"] ?? "",
         );
-    }
-
-    /**
-     * @param mixed[] $data
-     * @return null|static
-     */
-    public static function tryFromArray(array $data): ?static
-    {
-        try {
-            return static::fromArray($data);
-        } catch (Exception $e) {
-            return null;
-        }
     }
 
     public function type(RbmActionType $type): static
