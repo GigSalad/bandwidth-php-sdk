@@ -27,7 +27,7 @@ class Error implements \JsonSerializable
 
     /**
      * Additional meta information about the error
-     * @var \BandwidthLib\PhoneNumberLookup\Models\ErrorMeta[]|null $meta public property
+     * @var \BandwidthLib\PhoneNumberLookup\Models\ErrorMeta|null $meta public property
      */
     public $meta;
 
